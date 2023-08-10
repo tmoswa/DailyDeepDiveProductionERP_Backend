@@ -43,7 +43,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        corsConfiguration.setAllowedOrigins(List.of("https://production.zarkcigarettes.com/","http://production.zarkcigarettes.com/","http://83.149.110.184:8087/","http://localhost:8087/","production.zarkcigarettes.com/","production.zarkcigarettes.com"));
+        corsConfiguration.setAllowedOrigins(List.of("https://production.zarkcigarettes.com/","http://83.149.110.184:8087/","http://production.zarkcigarettes.com/","http://production.zarkcigarettes.com"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
