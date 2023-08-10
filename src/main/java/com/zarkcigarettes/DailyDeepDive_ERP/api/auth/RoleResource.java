@@ -32,8 +32,8 @@ public class RoleResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("roles",userServiceImplementation.roleList(30)))
-                        .data_corresponding(of("permissions",userServiceImplementation.privilegeList(30)))
+                        .data(of("roles",userServiceImplementation.roleList(300)))
+                        .data_corresponding(of("permissions",userServiceImplementation.privilegeList(30000)))
                         .message("successfully retrieved all roles")
                         .status(OK)
                         .statusCode(OK.value())

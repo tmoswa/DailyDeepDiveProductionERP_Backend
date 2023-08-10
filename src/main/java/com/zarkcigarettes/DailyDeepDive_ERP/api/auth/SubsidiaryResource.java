@@ -30,7 +30,7 @@ public class SubsidiaryResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("subsidiaries",userServiceImplementation.subsidiaryList(30)))
+                        .data(of("subsidiaries",userServiceImplementation.subsidiaryList(300)))
                         .message("successfully retrieved all subsidiaries")
                         .status(OK)
                         .statusCode(OK.value())
