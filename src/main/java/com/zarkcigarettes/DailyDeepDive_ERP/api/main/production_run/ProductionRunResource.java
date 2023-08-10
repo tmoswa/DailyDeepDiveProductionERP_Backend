@@ -29,7 +29,7 @@ import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@CrossOrigin(origins = "production.zarkcigarettes.com")
+@CrossOrigin(origins = "http://production.zarkcigarettes.com")
 @RequestMapping("api/production-run")
 public class ProductionRunResource {
 

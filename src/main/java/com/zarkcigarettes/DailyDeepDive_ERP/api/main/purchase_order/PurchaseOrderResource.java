@@ -33,7 +33,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("api/purchase-order")
-@CrossOrigin(origins = "production.zarkcigarettes.com")
+@CrossOrigin(origins = "http://production.zarkcigarettes.com")
 @Slf4j
 public class PurchaseOrderResource {
 
