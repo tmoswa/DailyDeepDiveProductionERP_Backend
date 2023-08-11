@@ -1,11 +1,9 @@
-package com.zarkcigarettes.DailyDeepDive_ERP.api.finished_product_movement;
+package com.zarkcigarettes.DailyDeepDive_ERP.api.main.finished_product_movement;
 
-import com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage.iMaterialUsageService;
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.FinishedProductMovementRepository;
-import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.MaterialUsageRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.ProductRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.FinishedProductMovement;
-import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.MaterialUsage;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +22,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
 
     private final FinishedProductMovementRepository finishedProductMovementRepository;
     private final ProductRepository productRepository;
+    private final ActivityLogService activityLogService;
     @Override
     public Collection<FinishedProductMovement> finishedProductMovementList(Long productID) {
         Product product=      productRepository.findById(productID)
@@ -39,6 +38,9 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
 
         double quantityNew = product.getQuantity() - finishedProductMovement.getQuantity();
         product.setQuantity(quantityNew);
+
+        activityLogService.addActivityLog("Added Stock movement : "+finishedProductMovement.getDescription(),"Finished Stock Movement");
+
 
         return finishedProductMovementRepository.save(finishedProductMovement);
     }
@@ -58,6 +60,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
             double quantityNew = product.getQuantity() + details.getQuantity();
             product.setQuantity(quantityNew);
 
+        activityLogService.addActivityLog("Deleted Stock movement : "+details.getDescription(),"Finished Stock Movement");
 
         finishedProductMovementRepository.deleteById(id);
             return  Boolean.TRUE;
@@ -70,6 +73,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
 
     if (details.getDescription().length() > 0) {
 
+        activityLogService.addActivityLog("Updated Stock movement : "+details.getDescription()+ details.getQuantity() + " , to :"+finishedProductMovement.getDescription() + finishedProductMovement.getQuantity(),"Finished Stock Movement");
 
         Product product = productRepository.findById(details.getProduct_usage().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", details.getProduct_usage().getId())));

@@ -17,7 +17,6 @@ import java.util.Map;
 @Slf4j
 @SpringBootApplication
 public class DailyDeepDiveErpApplication  {
-
 	public static void main(String[] args) {
 		SpringApplication.run(DailyDeepDiveErpApplication.class, args);
 	}
@@ -25,6 +24,4 @@ public class DailyDeepDiveErpApplication  {
 	public RequestContextListener requestContextListener() {
 		return new RequestContextListener();
 	}
-
-
 }

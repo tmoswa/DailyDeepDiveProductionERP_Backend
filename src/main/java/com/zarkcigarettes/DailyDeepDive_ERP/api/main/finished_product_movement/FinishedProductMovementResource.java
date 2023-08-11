@@ -1,11 +1,9 @@
-package com.zarkcigarettes.DailyDeepDive_ERP.api.finished_product_movement;
+package com.zarkcigarettes.DailyDeepDive_ERP.api.main.finished_product_movement;
 
-import com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage.MaterialUsageServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.ntms.NTMsServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.product.ProductServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.Response;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.FinishedProductMovement;
-import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.MaterialUsage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

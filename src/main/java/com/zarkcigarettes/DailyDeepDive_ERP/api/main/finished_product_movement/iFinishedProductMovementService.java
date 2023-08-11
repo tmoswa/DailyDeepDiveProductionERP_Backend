@@ -1,4 +1,4 @@
-package com.zarkcigarettes.DailyDeepDive_ERP.api.finished_product_movement;
+package com.zarkcigarettes.DailyDeepDive_ERP.api.main.finished_product_movement;
 
 
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.FinishedProductMovement;

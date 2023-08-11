@@ -37,8 +37,8 @@ public class NTMsResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("ntms",ntMsServiceImplementation.ntmsList(30)))
-                        .data_corresponding(of("main_entities",mainEntityServiceImplementation.mainEntityList(50)))
+                        .data(of("ntms",ntMsServiceImplementation.ntmsList(30000)))
+                        .data_corresponding(of("main_entities",mainEntityServiceImplementation.mainEntityList(50000)))
                         .message("successfully retrieved all ntms")
                         .status(OK)
                         .statusCode(OK.value())
@@ -53,8 +53,8 @@ public class NTMsResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("required_expected_ntms",ntMsServiceImplementation.ntmsRequiredExpectedList(30)))
-                        .data_corresponding(of("main_entities",mainEntityServiceImplementation.mainEntityList(50)))
+                        .data(of("required_expected_ntms",ntMsServiceImplementation.ntmsRequiredExpectedList(300000)))
+                        .data_corresponding(of("main_entities",mainEntityServiceImplementation.mainEntityList(50000)))
                         .message("successfully retrieved all ntms")
                         .status(OK)
                         .statusCode(OK.value())
@@ -72,7 +72,7 @@ public class NTMsResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("used_ntms",ntMsServiceImplementation.ntmsUsedList(from,to,900)))
+                        .data(of("used_ntms",ntMsServiceImplementation.ntmsUsedList(from,to,900000)))
                         .message("successfully retrieved used ntms")
                         .status(OK)
                         .statusCode(OK.value())

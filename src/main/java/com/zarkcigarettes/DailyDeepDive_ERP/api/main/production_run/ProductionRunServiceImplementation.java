@@ -1,6 +1,8 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.production_run;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage.iMaterialUsageService;
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.production_run_keynote.ProductionRunKeyNoteServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.production_run_material_usage.ProductionRunMaterialUsageServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.MaterialUsageRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.ProductRepository;
@@ -32,6 +34,9 @@ public class ProductionRunServiceImplementation implements iProductionRunService
     private final ProductionRunRepository productionRunRepository;
     private final ProductRepository productRepository;
     private final ProductionRunMaterialUsageServiceImplementation productionRunMaterialUsageServiceImplementation;
+    private final ProductionRunKeyNoteServiceImplementation productionRunKeyNoteServiceImplementation;
+
+    private final ActivityLogService activityLogService;
     private final Path root = Paths.get("uploads/");
     @Override
     public Collection<ProductionRun> productionRunList(int limit) {
@@ -55,6 +60,8 @@ public class ProductionRunServiceImplementation implements iProductionRunService
             double quantityNew = product.getQuantity() + productionRun.getQuantity();
             product.setQuantity(quantityNew);
         }
+        activityLogService.addActivityLog("Added Production Run of : "+productionRun.getProduct_production_run().getName() +" , of quantity "+productionRun.getQuantity(),"Production Run");
+
         return productionRunRepository.save(productionRun);
     }
 
@@ -102,12 +109,16 @@ public class ProductionRunServiceImplementation implements iProductionRunService
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", details.getId())));
 
 
+        activityLogService.addActivityLog("Deleted Production Run of : "+details.getProduct_production_run().getName() +" , of quantity "+details.getQuantity()+" , dated"+ details.getFrom_date(),"Production Run");
 
         if(details.getStatus().equals("Completed")){
             double quantityNew=product.getQuantity()-details.getQuantity();
             product.setQuantity(quantityNew);
 
+            boolean deleteProductionRunKeyNote=productionRunKeyNoteServiceImplementation.deleteDailyProductionRunKeyNoteByProductionRun(details);
+
             boolean deleteMaterialContents=productionRunMaterialUsageServiceImplementation.deleteProductionMaterialUsageByProductionRun(details);
+
             if(deleteMaterialContents){
                 productionRunRepository.deleteById(id);
                 return  Boolean.TRUE;
@@ -131,6 +142,7 @@ public class ProductionRunServiceImplementation implements iProductionRunService
 
     if (details.getDescription().length() > 0) {
 
+        activityLogService.addActivityLog("Updated Production Run of : "+details.getProduct_production_run().getName() +" , of quantity "+details.getQuantity()+" , dated"+ details.getFrom_date(),"Production Run");
 
         Product product=      productRepository.findById(details.getProduct_production_run().getId())
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", details.getId())));

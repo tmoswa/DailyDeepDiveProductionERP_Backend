@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.purchase_order;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.increaments.IncreamentsServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.main_entity.MainEntityServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.MainEntityRepository;
@@ -42,6 +43,8 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
     private final MainEntityRepository mainEntityRepository;
     private final IncreamentsServiceImplementation increamentsServiceImplementation;
     private final NTMsRepository ntMsRepository;
+
+    private final ActivityLogService activityLogService;
     private static final DecimalFormat df = new DecimalFormat("0.00");
     private final Path root = Paths.get("uploads/");
     @Override
@@ -95,6 +98,9 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
         purchaseOrder.setDelivery_date(today);
         purchaseOrder.setDelivered_quantity(0.0);
 
+        activityLogService.addActivityLog("Added Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity(),"Purchase Order");
+
+
         return purchaseOrderRepository.save(purchaseOrder);
     }
 
@@ -105,7 +111,9 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
                 return  Boolean.FALSE;
             }
         purchaseOrderRepository.deleteById(id);
-            return  Boolean.TRUE;
+        activityLogService.addActivityLog("Deleted Purchase Order of: "+purchaseOrderRepository.findById(id).get().getNtMs().getName()+" , quantity of "+purchaseOrderRepository.findById(id).get().getNtMs().getQuantity(),"Purchase Order");
+
+        return  Boolean.TRUE;
 
     }
 @Override
@@ -144,6 +152,7 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
             ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
         }
 
+        activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity()+ " , status"+purchaseOrder.getStatus(),"Purchase Order");
 
         return  Boolean.TRUE;
     }
@@ -157,6 +166,9 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("purchase order with id %d not found", id)));
 
         if (purchaseOrder.getStatus().equals("Delivered") && details.getStatus().equals("Initiated")) {
+
+            activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity()+ " , status"+purchaseOrder.getStatus(),"Purchase Order");
+
             details.setId(id);
                 details.setName(purchaseOrder.getName());
                 details.setUrl(purchaseOrder.getUrl());

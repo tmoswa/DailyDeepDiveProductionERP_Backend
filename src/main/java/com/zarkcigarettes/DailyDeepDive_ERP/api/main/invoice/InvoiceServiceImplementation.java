@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.invoice;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.increaments.IncreamentsServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.purchase_order.iPurchaseOrderService;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.InvoiceRepository;
@@ -34,7 +35,7 @@ public class InvoiceServiceImplementation implements iInvoiceService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final MainEntityRepository mainEntityRepository;
     private final IncreamentsServiceImplementation increamentsServiceImplementation;
-
+    private final ActivityLogService activityLogService;
     private final Path root = Paths.get("uploads/");
     @Override
     public void init() {
@@ -76,7 +77,11 @@ public class InvoiceServiceImplementation implements iInvoiceService {
         Increaments increaments=increamentsServiceImplementation.getIncreaments();
         increaments.setInvoice_inc(increaments.getInvoice_inc()+1);
         invoice.setInvoice_number(increaments.getInvoice_inc());
+        activityLogService.addActivityLog("Added Invoice number: "+invoice.getManual_invoice_number(),"Invoice");
+
         increamentsServiceImplementation.updateIncreaments(1L,increaments);
+
+
         return invoiceRepository.save(invoice);
     }
 
@@ -87,7 +92,9 @@ public class InvoiceServiceImplementation implements iInvoiceService {
                 return  Boolean.FALSE;
             }
         invoiceRepository.deleteById(id);
-            return  Boolean.TRUE;
+        activityLogService.addActivityLog("Deleted Invoice number: "+invoiceRepository.findById(id).get().getManual_invoice_number(),"Invoice");
+
+        return  Boolean.TRUE;
 
     }
 @Override
@@ -107,6 +114,9 @@ public class InvoiceServiceImplementation implements iInvoiceService {
             .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("purchase order with id %d not found", id)));
 
     if (details.getName().length() > 0) {
+
+        activityLogService.addActivityLog("Updated Invoice number: "+details.getManual_invoice_number(),"Invoice");
+
         details.setName(file.getOriginalFilename());
         details.setUrl(currentDateAndTime+"_"+file.getOriginalFilename());
         details.setDescription(invoice.getDescription());
