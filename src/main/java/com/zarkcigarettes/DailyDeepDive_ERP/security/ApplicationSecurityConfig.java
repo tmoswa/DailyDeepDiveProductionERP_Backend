@@ -24,7 +24,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = false, jsr250Enabled = true)
-@CrossOrigin(origins = "http://production.zarkcigarettes.com")
+@CrossOrigin(origins = "https://production.zarkcigarettes.com")
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
@@ -45,7 +45,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        corsConfiguration.setAllowedOrigins(List.of("https://production.zarkcigarettes.com/","http://83.149.110.184:8087/","http://production.zarkcigarettes.com/","http://production.zarkcigarettes.com"));
+        corsConfiguration.setAllowedOrigins(List.of("https://production.zarkcigarettes.com/","http://83.149.110.184:8087/","https://production.zarkcigarettes.com/","https://production.zarkcigarettes.com"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
@@ -64,6 +64,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new JwtTokenVerifier(secretKey, jwtConfig), JwtEmailAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/","/login","login","/login/refreshToken","/api3/*","/api3/cl/*","api3/cl/*","/api2/*","/api2","/api/*","/user/*", "index", "/css/*", "/js/*").permitAll().and()
+                .requiresChannel(channel ->
+                        channel.anyRequest().requiresSecure())
                 .authorizeRequests()
                 .antMatchers("/api2d/**").hasAuthority("read:authority")
                 .anyRequest()

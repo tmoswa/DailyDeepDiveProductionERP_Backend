@@ -30,7 +30,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("api/invoice")
-@CrossOrigin(origins = "http://production.zarkcigarettes.com")
+@CrossOrigin(origins = "https://production.zarkcigarettes.com")
 public class InvoiceResource {
 
     private final InvoiceServiceImplementation invoiceServiceImplementation;

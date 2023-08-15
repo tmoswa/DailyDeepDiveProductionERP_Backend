@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@CrossOrigin(origins = "http://production.zarkcigarettes.com/")
+@CrossOrigin(origins = "https://production.zarkcigarettes.com/")
 public class CorsConfiguration {
 
     private static final String GET = "GET";
