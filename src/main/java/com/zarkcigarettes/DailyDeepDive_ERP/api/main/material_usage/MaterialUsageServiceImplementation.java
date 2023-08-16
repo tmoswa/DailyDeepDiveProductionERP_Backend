@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.product.iProductService;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.MaterialUsageRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.ProductRepository;
@@ -25,6 +26,7 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
 
     private final MaterialUsageRepository materialUsageRepository;
     private final ProductRepository productRepository;
+    private final ActivityLogService activityLogService;
     @Override
     public Collection<MaterialUsage> materialUsageList(Long productID) {
         Product product=      productRepository.findById(productID)
@@ -34,6 +36,7 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
 
     @Override
     public MaterialUsage saveMaterialUsage(MaterialUsage materialUsage) {
+        activityLogService.addActivityLog("Added Material Usage: "+materialUsage.getNtMs_usage().getName()+" ,for Product: "+materialUsage.getProduct_usage().getName()+" , Quantity: "+materialUsage.getQuantity(),"Material Usage");
         return materialUsageRepository.save(materialUsage);
     }
 
@@ -43,6 +46,7 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
             if (!exists) {
                 return  Boolean.FALSE;
             }
+        activityLogService.addActivityLog("Deleted Material Usage: "+materialUsageRepository.findById(id).get().getNtMs_usage().getName()+" ,for Product: "+materialUsageRepository.findById(id).get().getProduct_usage().getName()+" , Quantity: "+materialUsageRepository.findById(id).get().getQuantity(),"Material Usage");
         materialUsageRepository.deleteById(id);
             return  Boolean.TRUE;
 
@@ -53,6 +57,8 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
             .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("material with id %d not found", id)));
 
     if (details.getDescription().length() > 0) {
+        activityLogService.addActivityLog("Updated Material Usage: "+materialUsage.getNtMs_usage().getName()+" ,for Product: "+materialUsage.getProduct_usage().getName()+" , From Quantity: "+details.getQuantity()+" , To Quantity: "+materialUsage.getQuantity(),"Material Usage");
+
         details.setNtMs_usage(materialUsage.getNtMs_usage());
         details.setProduct_usage(materialUsage.getProduct_usage());
         details.setQuantity(materialUsage.getQuantity());

@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -94,11 +95,13 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
         increamentsServiceImplementation.updateIncreaments(1L,increaments);
 
         LocalDate today = LocalDate.now();
-        purchaseOrder.setOrder_date(today);
-        purchaseOrder.setDelivery_date(today);
+        //purchaseOrder.setOrder_date(today);
+        NTMs ntm=ntMsRepository.findById(purchaseOrder.getNtMs().getId()).orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("NTM not found")));
+        int leadTime=ntm.getLead_time();
+        purchaseOrder.setDelivery_date(today.plusDays(leadTime));
         purchaseOrder.setDelivered_quantity(0.0);
 
-        activityLogService.addActivityLog("Added Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity(),"Purchase Order");
+        activityLogService.addActivityLog("Added Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of: "+purchaseOrder.getQuantity()+" , dated:"+purchaseOrder.getOrder_date(),"Purchase Order");
 
 
         return purchaseOrderRepository.save(purchaseOrder);
@@ -110,8 +113,9 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
             if (!exists) {
                 return  Boolean.FALSE;
             }
-        purchaseOrderRepository.deleteById(id);
         activityLogService.addActivityLog("Deleted Purchase Order of: "+purchaseOrderRepository.findById(id).get().getNtMs().getName()+" , quantity of "+purchaseOrderRepository.findById(id).get().getNtMs().getQuantity(),"Purchase Order");
+
+        purchaseOrderRepository.deleteById(id);
 
         return  Boolean.TRUE;
 
@@ -145,14 +149,14 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
         details.setStatus(purchaseOrder.getStatus());
         details.setMain_entity_po(purchaseOrder.getMain_entity_po());
 
-        if(purchaseOrder.getStatus().equals("Delivered")){
-            NTMs ntMs=  ntMsRepository.findById(id)
+        if(purchaseOrder.getStatus().equals("Delivered") && details.getStatus().equals("Initiated")){
+            NTMs ntMs=  ntMsRepository.findById(purchaseOrder.getNtMs().getId())
                     .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", id)));
             double totalNTMs=ntMs.getQuantity()+details.getQuantity();
             ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
         }
 
-        activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity()+ " , status"+purchaseOrder.getStatus(),"Purchase Order");
+        activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of: "+purchaseOrder.getQuantity()+ " , status: "+purchaseOrder.getStatus()+" , dated:"+purchaseOrder.getOrder_date(),"Purchase Order");
 
         return  Boolean.TRUE;
     }
@@ -167,7 +171,7 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
 
         if (purchaseOrder.getStatus().equals("Delivered") && details.getStatus().equals("Initiated")) {
 
-            activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of "+purchaseOrder.getQuantity()+ " , status"+purchaseOrder.getStatus(),"Purchase Order");
+            activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of: "+purchaseOrder.getQuantity()+ " , status: "+purchaseOrder.getStatus()+" , dated:"+purchaseOrder.getOrder_date(),"Purchase Order");
 
             details.setId(id);
                 details.setName(purchaseOrder.getName());

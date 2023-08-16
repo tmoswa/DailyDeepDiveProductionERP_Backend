@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.auth;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.Response;
 import com.zarkcigarettes.DailyDeepDive_ERP.auth.UserService;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.User;
@@ -30,6 +31,7 @@ import static org.springframework.http.HttpStatus.OK;
 @Slf4j
 public class PasswordReset {
     private final UserService userService;
+    private final ActivityLogService activityLogService;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -38,14 +40,16 @@ public class PasswordReset {
 
     @PostMapping("/passwordReset")
     public ResponseEntity<Response> resetPassword(@RequestBody EmailResetForm email, final HttpServletRequest request) {
-        log.info(email.getEmail());
+        //log.info(email.getEmail());
         User userDetails=userService.findUserByEmail(email.getEmail());
         final VerificationToken newToken = userService.generateNewVerificationTokenByUser(userDetails);
         final User user = userService.getUserByToken(newToken.getToken());
-        log.info(String.format("token is %s ",newToken.getToken()));
+        //log.info(String.format("token is %s ",newToken.getToken()));
         final String confirmationUrl = env.getProperty("frontend.appURL")+ "confirmRegistration?token=" + newToken.getToken();
        boolean sentMail= sendEmailMessage(user.getEmail(), RegistrationListener.buildEmail(user.getFirstName(),confirmationUrl,"You have been requested to reset your password in DDD Production System. Please click on the link/button below to set new Password: "));
-
+if(sentMail){
+    activityLogService.addActivityLog("Password Reset email sent to "+user.getFirstName()+" , to email  :"+user.getEmail(),"Password Reset");
+}
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
@@ -58,7 +62,7 @@ public class PasswordReset {
 
     @PostMapping("/registrationConfirm")
     public ResponseEntity<Response> getAllSubsidiary(@RequestBody RegConformationAndPasswordReset resetCredentials) {
-        log.info(String.format("body details %s", resetCredentials.toString()));
+       // log.info(String.format("body details %s", resetCredentials.toString()));
 
         String token = resetCredentials.getToken();
         String password = resetCredentials.getPassword();
@@ -68,8 +72,9 @@ public class PasswordReset {
 
         if (result.equals("valid")) {
             final User user = userService.getUserByToken(token);
+         //   activityLogService.addActivityLog("Password Reset Successful by: "+user.getFirstName()+" , with email  :"+user.getEmail(),"Password Reset");
             userService.updateUserCredentials(user, password, secret);
-        }
+       }
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())

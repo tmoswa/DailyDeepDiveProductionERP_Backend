@@ -47,7 +47,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         service.createVerificationTokenForUser(user, token);
 
         final String confirmationUrl = env.getProperty("frontend.appURL")+ "confirmRegistration?token=" + token;
-        sendEmailMessage(user.getEmail(),buildEmail(user.getFirstName(),confirmationUrl,"You have been registered to log into Cavendish Lloyd Global Enterprise System. Please click on the link/button below to activate your account and set new Password: "));
+        sendEmailMessage(user.getEmail(),buildEmail(user.getFirstName(),confirmationUrl,"You have been registered to log into DDD Production System. Please click on the link/button below to activate your account and set new Password: "));
 
         //final SimpleMailMessage email = constructEmailMessage(event, user, token);
         // mailSender.send(email);

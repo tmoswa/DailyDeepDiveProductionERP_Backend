@@ -39,7 +39,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
         double quantityNew = product.getQuantity() - finishedProductMovement.getQuantity();
         product.setQuantity(quantityNew);
 
-        activityLogService.addActivityLog("Added Stock movement : "+finishedProductMovement.getDescription(),"Finished Stock Movement");
+        activityLogService.addActivityLog("Added Stock movement : "+finishedProductMovement.getDescription()+" , of Product :"+finishedProductMovement.getProduct_usage().getName()+" , manual reference: "+finishedProductMovement.getManual_reference(),"Finished Stock Movement");
 
 
         return finishedProductMovementRepository.save(finishedProductMovement);
@@ -60,7 +60,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
             double quantityNew = product.getQuantity() + details.getQuantity();
             product.setQuantity(quantityNew);
 
-        activityLogService.addActivityLog("Deleted Stock movement : "+details.getDescription(),"Finished Stock Movement");
+        activityLogService.addActivityLog("Deleted Stock movement : "+details.getDescription()+" , of Product :"+details.getProduct_usage().getName()+" , manual reference: "+details.getManual_reference(),"Finished Stock Movement");
 
         finishedProductMovementRepository.deleteById(id);
             return  Boolean.TRUE;
@@ -72,9 +72,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
             .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("FinishedProductMovement with id %d not found", id)));
 
     if (details.getDescription().length() > 0) {
-
-        activityLogService.addActivityLog("Updated Stock movement : "+details.getDescription()+ details.getQuantity() + " , to :"+finishedProductMovement.getDescription() + finishedProductMovement.getQuantity(),"Finished Stock Movement");
-
+        activityLogService.addActivityLog("Updated Stock movement from description: "+details.getDescription()+" , from Quantity"+ details.getQuantity() + " , to Description : "+finishedProductMovement.getDescription() +"to Quantity"+ finishedProductMovement.getQuantity()+" , of Product :"+finishedProductMovement.getProduct_usage().getName()+" , manual reference: "+finishedProductMovement.getManual_reference(),"Finished Stock Movement");
         Product product = productRepository.findById(details.getProduct_usage().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", details.getProduct_usage().getId())));
 
@@ -86,6 +84,7 @@ public class FinishedProductMovementServiceImplementation implements iFinishedPr
         details.setQuantity(finishedProductMovement.getQuantity());
         details.setDescription(finishedProductMovement.getDescription());
         details.setManual_reference(finishedProductMovement.getManual_reference());
+        details.setMovement_date(finishedProductMovement.getMovement_date());
 
 
         return  Boolean.TRUE;

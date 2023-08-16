@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.product;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.ntms.iNTMsService;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.MainEntityRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.NTMsRepository;
@@ -29,6 +30,7 @@ public class ProductServiceImplementation implements iProductService {
     private final ProductRepository productRepository;
     private final ProductionRunRepository productionRunRepository;
     private final MainEntityRepository mainEntityRepository;
+    private final ActivityLogService activityLogService;
     @Override
     public Collection<Product> productList(int limit) {
         return  productRepository.findAll(PageRequest.of(0,limit)).toList();
@@ -63,6 +65,7 @@ public class ProductServiceImplementation implements iProductService {
 
     @Override
     public Product saveNTMs(Product product) {
+        activityLogService.addActivityLog("Added Product : "+product.getName() +" , with quantity "+product.getQuantity()+" , of Entity: "+product.getMain_entity_product().getLegal_name(),"Product");
         return productRepository.save(product);
     }
 
@@ -72,6 +75,8 @@ public class ProductServiceImplementation implements iProductService {
             if (!exists) {
                 return  Boolean.FALSE;
             }
+        activityLogService.addActivityLog("Deleted Product : "+productRepository.findById(id).get().getName() +" , with quantity "+productRepository.findById(id).get().getQuantity()+" , of Entity: "+productRepository.findById(id).get().getMain_entity_product().getLegal_name(),"Product");
+
         productRepository.deleteById(id);
             return  Boolean.TRUE;
 
@@ -82,6 +87,8 @@ public class ProductServiceImplementation implements iProductService {
             .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", id)));
 
     if (details.getName().length() > 0) {
+        activityLogService.addActivityLog("Updated Product : "+product.getName() +" , from quantity "+details.getQuantity()+" , To quantity "+product.getQuantity()+" , of Entity: "+product.getMain_entity_product().getLegal_name(),"Product");
+
         details.setName(product.getName());
         details.setCode(product.getCode());
         details.setSize(product.getSize());

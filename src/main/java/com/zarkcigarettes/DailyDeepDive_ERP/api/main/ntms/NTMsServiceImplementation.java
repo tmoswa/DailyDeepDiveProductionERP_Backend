@@ -1,6 +1,7 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.main.ntms;
 
 import com.zarkcigarettes.DailyDeepDive_ERP.api.config.currency.iCurrencyService;
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage.MaterialUsageServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.production_run.ProductionRunServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.purchase_order.PurchaseOrderServiceImplementation;
@@ -40,6 +41,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     private final ProductionRunServiceImplementation productionRunServiceImplementation;
     private final MaterialUsageServiceImplementation materialUsageServiceImplementation;
     private final PurchaseOrderServiceImplementation purchaseOrderServiceImplementation;
+    private final ActivityLogService activityLogService;
 
     @Override
     public Collection<NTMs> ntmsList(int limit) {
@@ -48,6 +50,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     @Override
     public NTMs saveNTMs(NTMs ntMs) {
+        activityLogService.addActivityLog("Added Material : "+ntMs.getName() +" , with quantity "+ntMs.getQuantity()+" , of Entity: "+ntMs.getMain_entity_material().getLegal_name(),"Material");
         return ntMsRepository.save(ntMs);
     }
 
@@ -57,6 +60,7 @@ public class NTMsServiceImplementation implements iNTMsService {
         if (!exists) {
             return Boolean.FALSE;
         }
+        activityLogService.addActivityLog("deleted Material : "+ntMsRepository.findById(id).get().getName() +" , with quantity "+ntMsRepository.findById(id).get().getQuantity()+" , of Entity: "+ntMsRepository.findById(id).get().getMain_entity_material().getLegal_name(),"Material");
         ntMsRepository.deleteById(id);
         return Boolean.TRUE;
 
@@ -68,6 +72,8 @@ public class NTMsServiceImplementation implements iNTMsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", id)));
 
         if (details.getName().length() > 0) {
+            activityLogService.addActivityLog("Update Material : "+details.getName() +" , from quantity "+details.getQuantity()+" , of Entity: "+ntMs.getMain_entity_material().getLegal_name()+" , to Quantity: "+ ntMs.getQuantity(),"Material");
+
             details.setName(ntMs.getName());
             details.setCode(ntMs.getCode());
             details.setSize(ntMs.getSize());

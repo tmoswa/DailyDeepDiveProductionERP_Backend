@@ -25,7 +25,7 @@ public class ActivityLogServiceImplementation implements iActivityLogService {
     private final ActivityLogRepository activityLogRepository;
     @Override
     public Collection<ActivityLog> activityLogList() {
-        return  activityLogRepository.findAll();
+        return  activityLogRepository.findAllByOrderByIdDesc();
     }
 
     @Override

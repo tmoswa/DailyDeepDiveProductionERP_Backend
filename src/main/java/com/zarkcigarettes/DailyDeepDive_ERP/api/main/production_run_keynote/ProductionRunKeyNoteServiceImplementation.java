@@ -36,7 +36,7 @@ public class ProductionRunKeyNoteServiceImplementation implements iProductionRun
 
     @Override
     public DailyProductionRunKeyNote saveDailyProductionRunKeyNote(DailyProductionRunKeyNote productionRunKeyNote) {
-        activityLogService.addActivityLog("Added Production Run Key Note : "+productionRunKeyNote.getComments(),"Production Run Key Notes");
+        activityLogService.addActivityLog("Added Production Run Key Note : "+productionRunKeyNote.getComments()+" , Cut Rag Usage: "+productionRunKeyNote.getRag_used()+" , Quantity Produced: "+productionRunKeyNote.getQuantity_produced(),"Production Run Key Notes");
 
         return productionRunKeyNoteRepository.save(productionRunKeyNote);
     }
@@ -47,7 +47,7 @@ public class ProductionRunKeyNoteServiceImplementation implements iProductionRun
             if (!exists) {
                 return  Boolean.FALSE;
             }
-        activityLogService.addActivityLog("Deleted Production Run Key Note : "+productionRunKeyNoteRepository.findById(id).get().getComments(),"Production Run Key Notes");
+        activityLogService.addActivityLog("Deleted Production Run Key Note : "+productionRunKeyNoteRepository.findById(id).get().getComments()+" , Cut Rag Usage: "+productionRunKeyNoteRepository.findById(id).get().getRag_used()+" , Quantity Produced: "+productionRunKeyNoteRepository.findById(id).get().getQuantity_produced(),"Production Run Key Notes");
 
         productionRunKeyNoteRepository.deleteById(id);
             return  Boolean.TRUE;
@@ -61,8 +61,7 @@ public class ProductionRunKeyNoteServiceImplementation implements iProductionRun
         Collection<DailyProductionRunKeyNote> dailyProductionRunKeyNotes= productionRunKeyNoteList(productionRun.getId());
         for(DailyProductionRunKeyNote dailyProductionRunKeyNote:dailyProductionRunKeyNotes){
           if(productionRunKeyNoteRepository.existsById(dailyProductionRunKeyNote.getId())){
-              activityLogService.addActivityLog("Deleted Production Run Key Note : "+dailyProductionRunKeyNote.getComments(),"Production Run Key Notes");
-
+              activityLogService.addActivityLog("Deleted Production Run Key Note : "+dailyProductionRunKeyNote.getComments()+" , Cut Rag Usage: "+dailyProductionRunKeyNote.getRag_used()+" , Quantity Produced: "+dailyProductionRunKeyNote.getQuantity_produced(),"Production Run Key Notes");
               productionRunKeyNoteRepository.deleteById(dailyProductionRunKeyNote.getId());
           }
         }
@@ -75,7 +74,7 @@ public class ProductionRunKeyNoteServiceImplementation implements iProductionRun
             .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("production Run Key Note with id %d not found", id)));
 
     if (details.getComments().length() > 0) {
-        activityLogService.addActivityLog("Deleted Production Run Key Note : "+dailyProductionRunKeyNote.getComments(),"Production Run Key Notes");
+        activityLogService.addActivityLog("Updated Production Run Key Note : "+dailyProductionRunKeyNote.getComments()+" , Cut Rag Usage: "+dailyProductionRunKeyNote.getRag_used()+" , Quantity Produced: "+dailyProductionRunKeyNote.getQuantity_produced(),"Production Run Key Notes");
 
         details.setProductionRun(dailyProductionRunKeyNote.getProductionRun());
         details.setProduct_usage(dailyProductionRunKeyNote.getProduct_usage());

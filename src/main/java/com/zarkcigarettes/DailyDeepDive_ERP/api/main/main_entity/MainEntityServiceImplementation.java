@@ -56,7 +56,7 @@ private final ActivityLogService activityLogService;
 
     @Override
     public MainEntity saveMainEntity(MainEntity mainEntity) {
-        activityLogService.addActivityLog("Added main entity"+mainEntity.getLegal_name(),"Entity");
+        activityLogService.addActivityLog("Added main entity: "+mainEntity.getLegal_name(),"Entity");
         return mainEntityRepository.save(mainEntity);
     }
 
@@ -67,7 +67,7 @@ private final ActivityLogService activityLogService;
                 return  Boolean.FALSE;
             }
         mainEntityRepository.deleteById(id);
-        activityLogService.addActivityLog("Deleted main entity"+mainEntityRepository.findById(id).get().getLegal_name(),"Entity");
+        activityLogService.addActivityLog("Deleted main entity: "+mainEntityRepository.findById(id).get().getLegal_name(),"Entity");
 
         return  Boolean.TRUE;
 
@@ -79,7 +79,7 @@ private final ActivityLogService activityLogService;
 
 
     if (details.getLegal_name().length() > 0) {
-        activityLogService.addActivityLog("Updated main entity"+details.getLegal_name(),"Entity");
+        activityLogService.addActivityLog("Updated main entity: "+details.getLegal_name(),"Entity");
 
         details.setLegal_name(mainEntity.getLegal_name());
         details.setFull_address(mainEntity.getFull_address());

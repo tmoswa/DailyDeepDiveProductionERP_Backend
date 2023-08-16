@@ -1,5 +1,6 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.api.auth;
 
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.GenericResponse;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.Response;
 import com.zarkcigarettes.DailyDeepDive_ERP.auth.UserService;
@@ -64,6 +65,7 @@ public class UserManagementResource {
     private final JwtConfig jwtConfig;
     private final SecretKey secretKey;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -80,7 +82,6 @@ public class UserManagementResource {
 
 
     @GetMapping(path = "/getloggedName")
-    @PreAuthorize("hasAuthority('PRIVILEGE-USERS-READ')")
     public ResponseEntity<Response> getloggedName(Authentication authentication) {
 Optional<User> user=userService.selectUserByEmail(authentication.getName());
         return  ResponseEntity.ok(
@@ -133,6 +134,7 @@ Optional<User> user=userService.selectUserByEmail(authentication.getName());
         User userDetailes=userService.saveUser(user);
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(userDetailes, request.getLocale(), getAppUrl(request)));
+        activityLogService.addActivityLog("Added User: "+user.getFirstName()+" , with email  :"+user.getEmail(),"User");
 
         return  ResponseEntity.ok(
                 Response.builder()
@@ -150,8 +152,11 @@ Optional<User> user=userService.selectUserByEmail(authentication.getName());
     @PutMapping(path = "{id}")
     @PreAuthorize("hasAuthority('PRIVILEGE-USERS-ALTER')")
     public ResponseEntity<Response> updateUser(@PathVariable("id") Long userID,@RequestBody User user) {
-        log.info(String.format("user body details %s", user.toString()));
+       // log.info(String.format("user body details %s", user.toString()));
         boolean updatedSuccessfully=userService.update(userID,user);
+        if(updatedSuccessfully){
+            activityLogService.addActivityLog("Updated User: "+user.getFirstName()+" , with email  :"+user.getEmail(),"User");
+        }
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
@@ -173,7 +178,7 @@ Optional<User> user=userService.selectUserByEmail(authentication.getName());
         String lastName = user.getLastName();
         String email = user.getEmail();
 
-        log.info(String.format("update details %s : ",user));
+      //  log.info(String.format("update details %s : ",user));
 
         User userToUpdate = userRepository.findById(userID)
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user with id %d not found", userID)));
@@ -204,7 +209,10 @@ if(!password.equals("")){
     @PreAuthorize("hasAuthority('PRIVILEGE-SUBSIDIARIES-DELETE')")
     public ResponseEntity<Response> deleteUser(User user){
 
+            activityLogService.addActivityLog("Deleted User: "+user.getFirstName()+" , with email  :"+user.getEmail(),"User");
+
         boolean successfullyDeletedUser= userService.deleteUser(user);
+
 
         return  ResponseEntity.ok(
                 Response.builder()
@@ -223,7 +231,7 @@ if(!password.equals("")){
     @PostMapping("/saveUsers2")
     public GenericResponse saveUser2(@RequestBody @Valid final User user, final HttpServletRequest request){
 
-        log.info(String.format("Tirimuno user details %s ",user.toString()));
+       // log.info(String.format("Tirimuno user details %s ",user.toString()));
         URI uri= URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("").toUriString());
         User registered=userService.saveUser(user);
         //userService.addUserLocation(registered, getClientIP(request));
@@ -256,7 +264,7 @@ if(!password.equals("")){
     }
     @PostMapping("/saveUsers")
     public ResponseEntity<User>saveUser(@RequestBody User user, final HttpServletRequest request){
-        log.info("Tirimuno");
+       // log.info("Tirimuno");
         URI uri= URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/saveUsers").toUriString());
        return ResponseEntity.created(null).body(userService.saveUser(user));
     }
@@ -291,9 +299,9 @@ return ResponseEntity.created(uri).body(userService.saveRole(role));
         User userDetails=userService.getUser(username);
         final VerificationToken newToken = userService.generateNewVerificationTokenByUser(userDetails);
         final User user = userService.getUserByToken(newToken.getToken());
-        log.info(String.format("token is %s ",newToken.getToken()));
+        //log.info(String.format("token is %s ",newToken.getToken()));
         final String confirmationUrl = env.getProperty("frontend.appURL")+ "confirmRegistration?token=" + newToken.getToken();
-        sendEmailMessage(user.getEmail(),RegistrationListener.buildEmail(user.getFirstName(),confirmationUrl,"You have been requested to reset your password with Cavendish Lloyd Global Enterprise System. Please click on the link/button below to set new Password: "));
+        sendEmailMessage(user.getEmail(),RegistrationListener.buildEmail(user.getFirstName(),confirmationUrl,"You have been requested to reset your password with DDD Production System. Please click on the link/button below to set new Password: "));
 
         return  ResponseEntity.ok(
                 Response.builder()
@@ -379,7 +387,7 @@ String refresh_token=authorizationHeader.substring(jwtConfig.getTokenPrefix().le
     }
 
     private SimpleMailMessage constructEmail(String subject, String body, User user) {
-        log.info(String.format("user 1  %s , to the database", user.toString()));
+      //  log.info(String.format("user 1  %s , to the database", user.toString()));
 
         final SimpleMailMessage email = new SimpleMailMessage();
         email.setSubject(subject);

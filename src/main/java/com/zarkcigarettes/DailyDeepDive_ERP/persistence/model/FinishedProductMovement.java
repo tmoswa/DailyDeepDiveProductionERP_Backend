@@ -1,6 +1,7 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.persistence.model;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -16,17 +17,19 @@ public class FinishedProductMovement {
     private String description;
     private String manual_reference;
     private double quantity;
+    private LocalDate movement_date;
 
 
     public FinishedProductMovement() {
         super();
     }
 
-    public FinishedProductMovement(String manual_reference, Product product_usage, String description, double quantity) {
+    public FinishedProductMovement(String manual_reference, Product product_usage, String description, double quantity,LocalDate movement_date) {
         this.manual_reference = manual_reference;
         this.product_usage = product_usage;
         this.description = description;
         this.quantity = quantity;
+        this.movement_date=movement_date;
     }
 
 //
@@ -70,6 +73,14 @@ public class FinishedProductMovement {
 
     public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    public LocalDate getMovement_date() {
+        return movement_date;
+    }
+
+    public void setMovement_date(LocalDate movement_date) {
+        this.movement_date = movement_date;
     }
 
     @Override

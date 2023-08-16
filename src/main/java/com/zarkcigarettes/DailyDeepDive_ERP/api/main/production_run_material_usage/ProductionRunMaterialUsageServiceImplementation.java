@@ -40,7 +40,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
         double quantityNew=details.getQuantity()-productionMaterialUsage.getQuantity();
         details.setQuantity(quantityNew);
 
-        activityLogService.addActivityLog("Added Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity(),"Production Run Material usage");
+        activityLogService.addActivityLog("Added Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
 
         return productionMaterialUsageRepository.save(productionMaterialUsage);
@@ -61,7 +61,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
         double quantityNew=details.getQuantity()+productionMaterialUsage.getQuantity();
         details.setQuantity(quantityNew);
 
-        activityLogService.addActivityLog("Deleted Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity(),"Production Run Material usage");
+        activityLogService.addActivityLog("Deleted Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
 
         productionMaterialUsageRepository.deleteById(id);
@@ -76,8 +76,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
         Collection<ProductionMaterialUsage> productionMaterialUsages= productionMaterialUsageList(productionRun.getId());
         for(ProductionMaterialUsage productionMaterialUsage:productionMaterialUsages){
           if(productionMaterialUsageRepository.existsById(productionMaterialUsage.getId())){
-              activityLogService.addActivityLog("Deleted Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity(),"Production Run Material usage");
-
+              activityLogService.addActivityLog("Deleted Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
               productionMaterialUsageRepository.deleteById(productionMaterialUsage.getId());
           }
         }
@@ -97,7 +96,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
         double quantityNew=NTMsDetails.getQuantity()-details.getQuantity()+productionMaterialUsage.getQuantity();
         details.setQuantity(quantityNew);
 
-        activityLogService.addActivityLog("Updated Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity(),"Production Run Material usage");
+        activityLogService.addActivityLog("Updated Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , from quantity "+details.getQuantity()+" , to quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
         details.setNtMs_usage(productionMaterialUsage.getNtMs_usage());
         details.setProduct_usage(productionMaterialUsage.getProduct_usage());
