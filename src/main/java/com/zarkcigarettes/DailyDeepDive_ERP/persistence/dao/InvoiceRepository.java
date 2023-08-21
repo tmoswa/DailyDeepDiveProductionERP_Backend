@@ -16,6 +16,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     @Override
     void delete(Invoice invoice);
 
-    @Query("SELECT s FROM Invoice s where s.main_entity_inv=?1")
+    @Query("SELECT s FROM Invoice s where s.main_entity_inv=?1 ORDER BY id DESC")
     Collection<Invoice> findInvoiceByMainEntity(MainEntity mainEntity);
 }

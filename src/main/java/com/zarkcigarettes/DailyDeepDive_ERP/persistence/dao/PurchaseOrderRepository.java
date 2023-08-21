@@ -18,6 +18,6 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
     void delete(PurchaseOrder purchaseOrder);
 
     Optional<PurchaseOrder> findPurchaseOrderByName(String name);
-    @Query("SELECT s FROM PurchaseOrder s where s.main_entity_po=?1")
+    @Query("SELECT s FROM PurchaseOrder s where s.main_entity_po=?1 ORDER BY id DESC")
     Collection<PurchaseOrder> findPurchaseOrderByMainEntity(MainEntity mainEntity);
 }

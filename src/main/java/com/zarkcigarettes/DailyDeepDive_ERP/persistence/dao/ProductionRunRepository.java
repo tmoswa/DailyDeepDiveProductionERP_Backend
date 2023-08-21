@@ -16,7 +16,7 @@ public interface ProductionRunRepository extends JpaRepository<ProductionRun, Lo
     @Override
     void delete(ProductionRun productionRun);
 
-    @Query("SELECT s FROM ProductionRun s where s.product_production_run=?1")
+    @Query("SELECT s FROM ProductionRun s where s.product_production_run=?1 ORDER BY id DESC")
     Collection<ProductionRun> findProductionRunByProduct(Product product);
 
 }
