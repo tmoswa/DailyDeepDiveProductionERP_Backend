@@ -94,7 +94,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     public Collection<NTMs> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
         ArrayList<NTMs> ntMsFin = new ArrayList<>();
-        Collection<NTMs> availableNTMs = this.ntmList(limit);
+        Collection<NTMs> availableNTMs = this.ntmsList(limit);
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
                 .collect(Collectors.toList());
@@ -117,7 +117,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     public Collection<NTMsRequiredExpected> ntmsRequiredExpectedList(int limit) {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
 
-        Collection<NTMs> availableNTMs = this.ntmList(limit);;
+        Collection<NTMs> availableNTMs = this.ntmsList(limit);;
         Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100);
 
         for (NTMs ntMs : availableNTMs) {
