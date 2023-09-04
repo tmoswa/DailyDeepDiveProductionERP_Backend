@@ -108,6 +108,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             ntm.setDescription(ntMs.getDescription());
             ntm.setLead_time(ntMs.getLead_time());
             ntm.setUnit_of_measure(ntMs.getUnit_of_measure());
+            ntm.setLegal_name(ntMs.getMain_entity_material().getLegal_name());
             ntm.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
@@ -295,6 +296,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
     @Data
     class ntmsUsed{
+        private String legal_name;
         private String name;
         private String code;
         private String size;
