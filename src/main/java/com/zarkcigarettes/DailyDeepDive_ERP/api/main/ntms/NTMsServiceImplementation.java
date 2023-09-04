@@ -104,7 +104,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             ntMs.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
-                    ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
+                   // ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
                 }
             }
             ntMsFin.add(ntMs);
