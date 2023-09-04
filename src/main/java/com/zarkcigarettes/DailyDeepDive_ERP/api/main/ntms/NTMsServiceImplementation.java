@@ -50,7 +50,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     @Override
     public NTMs saveNTMs(NTMs ntMs) {
-        activityLogService.addActivityLog("Added Material : "+ntMs.getName() +" , with quantity "+ntMs.getQuantity()+" , of Entity: "+ntMs.getMain_entity_material().getLegal_name(),"Material");
+        activityLogService.addActivityLog("Added Material : " + ntMs.getName() + " , with quantity " + ntMs.getQuantity() + " , of Entity: " + ntMs.getMain_entity_material().getLegal_name(), "Material");
         return ntMsRepository.save(ntMs);
     }
 
@@ -60,7 +60,7 @@ public class NTMsServiceImplementation implements iNTMsService {
         if (!exists) {
             return Boolean.FALSE;
         }
-        activityLogService.addActivityLog("deleted Material : "+ntMsRepository.findById(id).get().getName() +" , with quantity "+ntMsRepository.findById(id).get().getQuantity()+" , of Entity: "+ntMsRepository.findById(id).get().getMain_entity_material().getLegal_name(),"Material");
+        activityLogService.addActivityLog("deleted Material : " + ntMsRepository.findById(id).get().getName() + " , with quantity " + ntMsRepository.findById(id).get().getQuantity() + " , of Entity: " + ntMsRepository.findById(id).get().getMain_entity_material().getLegal_name(), "Material");
         ntMsRepository.deleteById(id);
         return Boolean.TRUE;
 
@@ -72,7 +72,7 @@ public class NTMsServiceImplementation implements iNTMsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", id)));
 
         if (details.getName().length() > 0) {
-            activityLogService.addActivityLog("Update Material : "+details.getName() +" , from quantity "+details.getQuantity()+" , of Entity: "+ntMs.getMain_entity_material().getLegal_name()+" , to Quantity: "+ ntMs.getQuantity(),"Material");
+            activityLogService.addActivityLog("Update Material : " + details.getName() + " , from quantity " + details.getQuantity() + " , of Entity: " + ntMs.getMain_entity_material().getLegal_name() + " , to Quantity: " + ntMs.getQuantity(), "Material");
 
             details.setName(ntMs.getName());
             details.setCode(ntMs.getCode());
@@ -88,24 +88,28 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
 
-    public Collection<NTMs> ntmsUsedList(LocalDate from, LocalDate to,int limit) {
+    public Collection<NTMs> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
         ArrayList<NTMs> ntMsFin = new ArrayList<>();
         List<NTMs> availableNTMs = ntMsRepository.findAll();
-        List<ProductionMaterialUsage> productionMaterialUsages=productionMaterialUsageRepository.findAll()
-                .stream().filter(m_used->m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
+        List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
+                .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
                 .collect(Collectors.toList());
+
         for (NTMs nt : availableNTMs) {
-            NTMs ntMs=nt;
+            NTMs ntMs = new NTMs();
+            ntMs=nt;
             ntMs.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
-                if(productionMaterialUsage.getNtMs_usage().getId()==nt.getId()){
+                if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
                     ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
+                }
             }
-             }
             ntMsFin.add(ntMs);
         }
-    return ntMsFin;
+        return ntMsFin;
     }
+
+
 
     public Collection<NTMsRequiredExpected> ntmsRequiredExpectedList(int limit) {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
@@ -115,83 +119,78 @@ public class NTMsServiceImplementation implements iNTMsService {
 
         for (NTMs ntMs : availableNTMs) {
             NTMsRequiredExpected ntMsRequiredExpected1 = new NTMsRequiredExpected();
-            ntMsRequiredExpected1.ntMs=ntMs;
-            int productionRunsDup=0;
+            ntMsRequiredExpected1.ntMs = ntMs;
+            int productionRunsDup = 0;
             for (ProductionRun productionRun : productionRuns) {
                 Period duration = Period.between(LocalDate.now(), productionRun.getFrom_date());
-                int durationIndays = (duration.getMonths()*30)+duration.getDays();
+                int durationIndays = (duration.getMonths() * 30) + duration.getDays();
 
-                if (durationIndays>0) {
-                    log.info("GenerationdurationIndays------ "+productionRun.getFrom_date()+"_______"+durationIndays+"");
+                if (durationIndays > 0) {
+                    log.info("GenerationdurationIndays------ " + productionRun.getFrom_date() + "_______" + durationIndays + "");
                     double productionQnty = productionRun.getQuantity();
                     Product productForProduction = productionRun.getProduct_production_run();
 
-                    MaterialUsage materialUsage=materialUsageServiceImplementation.materialUsageList(productForProduction.getId())
+                    MaterialUsage materialUsage = materialUsageServiceImplementation.materialUsageList(productForProduction.getId())
                             .stream()
                             .filter(materialUsage1 -> materialUsage1.getNtMs_usage().equals(ntMs))
                             .findAny().get();
 
 
-                        if (materialUsage!=null) {
+                    if (materialUsage != null) {
 
-                            if (ntMsRequiredExpected.size() > 0) {
+                        if (ntMsRequiredExpected.size() > 0) {
 
-                                try {
-                                    NTMsRequiredExpected ntMsRequiredExpected2 = ntMsRequiredExpected
-                                            .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId()==ntMs.getId())
-                                            .findAny()
-                                            .get();
+                            try {
+                                NTMsRequiredExpected ntMsRequiredExpected2 = ntMsRequiredExpected
+                                        .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId() == ntMs.getId())
+                                        .findAny()
+                                        .get();
 
-                                    if (ntMsRequiredExpected2 != null) {
-
-                                        log.info("Generation0------");
-                                        log.info(ntMsRequiredExpected2.toString());
-
-                                        if (durationIndays < 31) {
-                                            ntMsRequiredExpected1.quantity_required_30 = ntMsRequiredExpected2.quantity_required_30 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        } else if (durationIndays < 61) {
-                                            ntMsRequiredExpected1.quantity_required_60 = ntMsRequiredExpected2.quantity_required_60 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        } else if (durationIndays < 91) {
-                                            ntMsRequiredExpected1.quantity_required_90 = ntMsRequiredExpected2.quantity_required_90 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        } else if (durationIndays < 121) {
-                                            ntMsRequiredExpected1.quantity_required_120 = ntMsRequiredExpected2.quantity_required_120 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        } else if (durationIndays < 151) {
-                                            ntMsRequiredExpected1.quantity_required_150 = ntMsRequiredExpected2.quantity_required_150 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        } else if (durationIndays < 181) {
-                                            ntMsRequiredExpected1.quantity_required_180 = ntMsRequiredExpected2.quantity_required_180 + (materialUsage.getQuantity() * (productionQnty / 50));
-                                        }
+                                if (ntMsRequiredExpected2 != null) {
+                                    if (durationIndays < 31) {
+                                        ntMsRequiredExpected1.quantity_required_30 = ntMsRequiredExpected2.quantity_required_30 + (materialUsage.getQuantity() * (productionQnty / 50));
+                                    } else if (durationIndays < 61) {
+                                        ntMsRequiredExpected1.quantity_required_60 = ntMsRequiredExpected2.quantity_required_60 + (materialUsage.getQuantity() * (productionQnty / 50));
+                                    } else if (durationIndays < 91) {
+                                        ntMsRequiredExpected1.quantity_required_90 = ntMsRequiredExpected2.quantity_required_90 + (materialUsage.getQuantity() * (productionQnty / 50));
+                                    } else if (durationIndays < 121) {
+                                        ntMsRequiredExpected1.quantity_required_120 = ntMsRequiredExpected2.quantity_required_120 + (materialUsage.getQuantity() * (productionQnty / 50));
+                                    } else if (durationIndays < 151) {
+                                        ntMsRequiredExpected1.quantity_required_150 = ntMsRequiredExpected2.quantity_required_150 + (materialUsage.getQuantity() * (productionQnty / 50));
+                                    } else if (durationIndays < 181) {
+                                        ntMsRequiredExpected1.quantity_required_180 = ntMsRequiredExpected2.quantity_required_180 + (materialUsage.getQuantity() * (productionQnty / 50));
                                     }
-                                }catch (NoSuchElementException e) {
-                                        ntMsRequiredExpected1 = updateEmptyData(durationIndays, ntMsRequiredExpected1, materialUsage, productionQnty / 50);
                                 }
-                        }
-                            else{
-                                ntMsRequiredExpected1= updateEmptyData(durationIndays,ntMsRequiredExpected1,materialUsage,productionQnty/50);
+                            } catch (NoSuchElementException e) {
+                                ntMsRequiredExpected1 = updateEmptyData(durationIndays, ntMsRequiredExpected1, materialUsage, productionQnty / 50);
                             }
-
+                        } else {
+                            ntMsRequiredExpected1 = updateEmptyData(durationIndays, ntMsRequiredExpected1, materialUsage, productionQnty / 50);
                         }
+
+                    }
                 }
                 productionRunsDup++;
             }
 
             //Lets do the intransit here
-Collection<PurchaseOrder> purchaseOrders= purchaseOrderServiceImplementation.totalPurchaseOrderList(9000)
-        .stream()
-        .filter(po->po.getStatus().equals("Initiated"))
-        .collect(Collectors.toList());
+            Collection<PurchaseOrder> purchaseOrders = purchaseOrderServiceImplementation.totalPurchaseOrderList(9000)
+                    .stream()
+                    .filter(po -> po.getStatus().equals("Initiated"))
+                    .collect(Collectors.toList());
 
-            for(PurchaseOrder purchaseOrder:purchaseOrders){
-                if(purchaseOrder.getNtMs().equals(ntMs)){
-                    Period period=Period.between(LocalDate.now(),purchaseOrder.getDelivery_date());
-                    int months=period.getMonths();
-                    int durationIndays= (months*30)+period.getDays();
+            for (PurchaseOrder purchaseOrder : purchaseOrders) {
+                if (purchaseOrder.getNtMs().equals(ntMs)) {
+                    Period period = Period.between(LocalDate.now(), purchaseOrder.getDelivery_date());
+                    int months = period.getMonths();
+                    int durationIndays = (months * 30) + period.getDays();
 
 
                     if (ntMsRequiredExpected.size() > 0) {
 
                         try {
                             NTMsRequiredExpected ntMsRequiredExpected2 = ntMsRequiredExpected
-                                    .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId()==ntMs.getId())
+                                    .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId() == ntMs.getId())
                                     .findAny()
                                     .get();
 
@@ -214,12 +213,11 @@ Collection<PurchaseOrder> purchaseOrders= purchaseOrderServiceImplementation.tot
                                     ntMsRequiredExpected1.quantity_expected_180 = ntMsRequiredExpected2.quantity_expected_180 + purchaseOrder.getQuantity();
                                 }
                             }
-                        }catch (NoSuchElementException e) {
-                            ntMsRequiredExpected1 = updateEmptyDataExpected(durationIndays,ntMsRequiredExpected1,purchaseOrder.getQuantity());
+                        } catch (NoSuchElementException e) {
+                            ntMsRequiredExpected1 = updateEmptyDataExpected(durationIndays, ntMsRequiredExpected1, purchaseOrder.getQuantity());
                         }
-                    }
-                    else{
-                        ntMsRequiredExpected1= updateEmptyDataExpected(durationIndays,ntMsRequiredExpected1,purchaseOrder.getQuantity());
+                    } else {
+                        ntMsRequiredExpected1 = updateEmptyDataExpected(durationIndays, ntMsRequiredExpected1, purchaseOrder.getQuantity());
                     }
                 }
             }
@@ -230,8 +228,8 @@ Collection<PurchaseOrder> purchaseOrders= purchaseOrderServiceImplementation.tot
         return ntMsRequiredExpected;
     }
 
-    private NTMsRequiredExpected updateEmptyData(int durationIndays,NTMsRequiredExpected ntMsRequiredExpected1,MaterialUsage materialUsage,double productionQnty){
-        if(durationIndays<31){
+    private NTMsRequiredExpected updateEmptyData(int durationIndays, NTMsRequiredExpected ntMsRequiredExpected1, MaterialUsage materialUsage, double productionQnty) {
+        if (durationIndays < 31) {
             ntMsRequiredExpected1.quantity_required_30 = materialUsage.getQuantity() * productionQnty;
         } else if (durationIndays < 61) {
             ntMsRequiredExpected1.quantity_required_60 = materialUsage.getQuantity() * productionQnty;
@@ -247,8 +245,8 @@ Collection<PurchaseOrder> purchaseOrders= purchaseOrderServiceImplementation.tot
         return ntMsRequiredExpected1;
     }
 
-    private NTMsRequiredExpected updateEmptyDataExpected(int durationIndays,NTMsRequiredExpected ntMsRequiredExpected1,double expectedQuantity){
-        if(durationIndays<31){
+    private NTMsRequiredExpected updateEmptyDataExpected(int durationIndays, NTMsRequiredExpected ntMsRequiredExpected1, double expectedQuantity) {
+        if (durationIndays < 31) {
             ntMsRequiredExpected1.quantity_expected_30 = expectedQuantity;
         } else if (durationIndays < 61) {
             ntMsRequiredExpected1.quantity_expected_60 = expectedQuantity;
