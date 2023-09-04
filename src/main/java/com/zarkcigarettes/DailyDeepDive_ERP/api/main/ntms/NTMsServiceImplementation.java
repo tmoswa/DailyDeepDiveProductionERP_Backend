@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -136,7 +137,13 @@ public class NTMsServiceImplementation implements iNTMsService {
                 Period duration = Period.between(LocalDate.now(), productionRun.getFrom_date());
                 int durationIndays = (duration.getMonths() * 30) + duration.getDays();
 
-                if (durationIndays > 0) {
+                Month month = LocalDate.now().getMonth();
+                Month month1=productionRun.getFrom_date().getMonth();
+                if(month.equals(month1)){
+                    durationIndays=1;
+                }
+
+                if (durationIndays > 0 || month.equals(month1)) {
                     log.info("GenerationdurationIndays------ " + productionRun.getFrom_date() + "_______" + durationIndays + "");
                     double productionQnty = productionRun.getQuantity();
                     Product productForProduction = productionRun.getProduct_production_run();
