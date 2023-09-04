@@ -92,8 +92,8 @@ public class NTMsServiceImplementation implements iNTMsService {
         return ntMsRepository.findAllNTMs(limit);
     }
 
-    public Collection<NTMs> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
-        ArrayList<NTMs> ntMsFin = new ArrayList<>();
+    public Collection<ntmsUsed> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
+        ArrayList<ntmsUsed> ntMsFin = new ArrayList<>();
         Collection<NTMs> availableNTMs = this.ntmsList(limit);
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
@@ -101,13 +101,20 @@ public class NTMsServiceImplementation implements iNTMsService {
 
         for (NTMs nt : availableNTMs) {
             NTMs ntMs = nt;
-            ntMs.setQuantity(0);
+            ntmsUsed ntm=new ntmsUsed();
+            ntm.setCode(ntMs.getCode());
+            ntm.setSize(ntMs.getSize());
+            ntm.setName(ntMs.getName());
+            ntm.setDescription(ntMs.getDescription());
+            ntm.setLead_time(ntMs.getLead_time());
+            ntm.setUnit_of_measure(ntMs.getUnit_of_measure());
+            ntm.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
-                 // ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
+                    ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
                 }
             }
-            ntMsFin.add(ntMs);
+            ntMsFin.add(ntm);
         }
         return ntMsFin;
     }
@@ -285,6 +292,16 @@ public class NTMsServiceImplementation implements iNTMsService {
     @Data
     class NTMsUsed {
         private NTMs ntMs;
+    }
+    @Data
+    class ntmsUsed{
+        private String name;
+        private String code;
+        private String size;
+        private double quantity;
+        private int lead_time;
+        private String description;
+        private String unit_of_measure;
     }
 
 }
