@@ -87,17 +87,20 @@ public class NTMsServiceImplementation implements iNTMsService {
         return Boolean.FALSE;
     }
 
+    @Override
+    public Collection<NTMs> ntmList(int limit) {
+        return ntMsRepository.findAllNTMs(limit);
+    }
 
     public Collection<NTMs> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
         ArrayList<NTMs> ntMsFin = new ArrayList<>();
-        Collection<NTMs> availableNTMs = this.ntmsList(10000000);
+        Collection<NTMs> availableNTMs = this.ntmList(limit);
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
                 .collect(Collectors.toList());
 
         for (NTMs nt : availableNTMs) {
-            NTMs ntMs = new NTMs();
-            ntMs=nt;
+            NTMs ntMs = nt;
             ntMs.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
