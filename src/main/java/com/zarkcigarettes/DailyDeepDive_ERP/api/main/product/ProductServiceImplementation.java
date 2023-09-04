@@ -62,7 +62,7 @@ public class ProductServiceImplementation implements iProductService {
             pp.setQuantity(0);
             for (ProductionRun productionRun : productionRuns) {
                 if(productionRun.getProduct_production_run().getId()==pd.getId()){
-                    pp.setQuantity(pd.getQuantity() + productionRun.getQuantity());
+                    pp.setQuantity(pp.getQuantity() + productionRun.getQuantity());
                 }
             }
             productFin.add(pp);
