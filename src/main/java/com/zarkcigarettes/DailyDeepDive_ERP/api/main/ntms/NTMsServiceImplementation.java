@@ -104,7 +104,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             ntMs.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
-                   // ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
+                  ntMs.setQuantity(ntMs.getQuantity() + productionMaterialUsage.getQuantity());
                 }
             }
             ntMsFin.add(ntMs);
@@ -117,7 +117,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     public Collection<NTMsRequiredExpected> ntmsRequiredExpectedList(int limit) {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
 
-        List<NTMs> availableNTMs = ntMsRepository.findAll();
+        Collection<NTMs> availableNTMs = this.ntmList(limit);;
         Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100);
 
         for (NTMs ntMs : availableNTMs) {
