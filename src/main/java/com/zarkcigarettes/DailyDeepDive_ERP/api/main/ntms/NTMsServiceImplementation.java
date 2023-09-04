@@ -127,18 +127,28 @@ public class NTMsServiceImplementation implements iNTMsService {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
 
         Collection<NTMs> availableNTMs = this.ntmsList(limit);;
-        Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100);
+        Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100).stream().filter(pr->pr.getStatus().equals("Planned")).collect(Collectors.toList());
+
 
         for (NTMs ntMs : availableNTMs) {
             NTMsRequiredExpected ntMsRequiredExpected1 = new NTMsRequiredExpected();
             ntMsRequiredExpected1.ntMs = ntMs;
             int productionRunsDup = 0;
             for (ProductionRun productionRun : productionRuns) {
+
                 Period duration = Period.between(LocalDate.now(), productionRun.getFrom_date());
                 int durationIndays = (duration.getMonths() * 30) + duration.getDays();
 
                 Month month = LocalDate.now().getMonth();
                 Month month1=productionRun.getFrom_date().getMonth();
+
+
+                Collection<ProductionRun> dailyProductionRuns2 = productionRunServiceImplementation.productionRunList(100).stream().filter(pr->pr.getStatus().equals("Completed")).collect(Collectors.toList()).stream().filter(pr->pr.getFrom_date().getMonth().equals(month)).collect(Collectors.toList());
+                double alreadyProduced=0;
+                for(ProductionRun ppr:dailyProductionRuns2){
+                    alreadyProduced+=ppr.getQuantity();
+                }
+
                 if(month.equals(month1)){
                     durationIndays=1;
                 }
@@ -146,6 +156,9 @@ public class NTMsServiceImplementation implements iNTMsService {
                 if (durationIndays > 0 || month.equals(month1)) {
                     log.info("GenerationdurationIndays------ " + productionRun.getFrom_date() + "_______" + durationIndays + "");
                     double productionQnty = productionRun.getQuantity();
+                    if(month.equals(month1)){
+                        productionQnty=productionQnty-alreadyProduced;
+                    }
                     Product productForProduction = productionRun.getProduct_production_run();
 
                     MaterialUsage materialUsage = materialUsageServiceImplementation.materialUsageList(productForProduction.getId())
@@ -163,6 +176,8 @@ public class NTMsServiceImplementation implements iNTMsService {
                                         .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId() == ntMs.getId())
                                         .findAny()
                                         .get();
+
+
 
                                 if (ntMsRequiredExpected2 != null) {
                                     if (durationIndays < 31) {
