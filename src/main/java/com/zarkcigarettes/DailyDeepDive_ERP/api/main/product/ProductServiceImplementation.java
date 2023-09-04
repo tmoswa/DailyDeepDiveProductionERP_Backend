@@ -7,6 +7,7 @@ import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.NTMsRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.ProductRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.ProductionRunRepository;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.*;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -44,21 +45,27 @@ public class ProductServiceImplementation implements iProductService {
         return  productRepository.findProductByMainEntity(mainEntity);
     }
 
-    public Collection<Product> producedList(LocalDate from, LocalDate to, int limit) {
-        ArrayList<Product> productFin = new ArrayList<>();
+    public Collection<ProducedProduct> producedList(LocalDate from, LocalDate to, int limit) {
+        ArrayList<ProducedProduct> productFin = new ArrayList<>();
         List<Product> availableProducts = productRepository.findAll();
         List<ProductionRun> productionRuns=productionRunRepository.findAll()
                 .stream().filter(m_used->m_used.getFrom_date().isAfter(from.minusDays(1)) && m_used.getFrom_date().isBefore(to.plusDays(1)) && m_used.getStatus().equals("Completed"))
                 .collect(Collectors.toList());
         for (Product pd : availableProducts) {
-            Product product=pd;
-            product.setQuantity(0);
+            ProducedProduct pp=new ProducedProduct();
+            pp.setCode(pd.getCode());
+            pp.setSize(pd.getSize());
+            pp.setName(pd.getName());
+            pp.setDescription(pd.getDescription());
+            pp.setMain_entity_product(pd.getMain_entity_product());
+            pp.setUnit_of_measure(pd.getUnit_of_measure());
+            pp.setQuantity(0);
             for (ProductionRun productionRun : productionRuns) {
                 if(productionRun.getProduct_production_run().getId()==pd.getId()){
-                    product.setQuantity(product.getQuantity() + productionRun.getQuantity());
+                    pp.setQuantity(pd.getQuantity() + productionRun.getQuantity());
                 }
             }
-            productFin.add(product);
+            productFin.add(pp);
         }
         return productFin;
     }
@@ -100,4 +107,16 @@ public class ProductServiceImplementation implements iProductService {
     }
     return  Boolean.FALSE;
     }
+    @Data
+    class ProducedProduct{
+        private MainEntity main_entity_product;
+        private String name;
+        private String code;
+        private String size;
+        private double quantity;
+        private String description;
+        private String unit_of_measure;
+    }
 }
+
+
