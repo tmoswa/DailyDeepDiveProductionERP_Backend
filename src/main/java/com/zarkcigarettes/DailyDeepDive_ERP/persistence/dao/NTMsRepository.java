@@ -19,6 +19,6 @@ public interface NTMsRepository extends JpaRepository<NTMs, Long> {
 
     Optional<NTMs> findCurrencyByName(String name);
 
-    @Query("SELECT s FROM NTMs")
+    @Query("SELECT s FROM NTMs s")
     Collection<NTMs> findAllNTMs(int limit);
 }
