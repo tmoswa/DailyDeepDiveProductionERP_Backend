@@ -1,6 +1,7 @@
 package com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao;
 
 
+import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.ActivityLog;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.MainEntity;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.NTMs;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.Product;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface NTMsRepository extends JpaRepository<NTMs, Long> {
@@ -21,4 +23,6 @@ public interface NTMsRepository extends JpaRepository<NTMs, Long> {
 
     @Query("SELECT s FROM NTMs s")
     Collection<NTMs> findAllNTMs(int limit);
+
+    public List<NTMs> findAllByOrderBySequenceAsc();
 }

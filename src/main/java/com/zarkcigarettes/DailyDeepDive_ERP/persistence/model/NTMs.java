@@ -17,6 +17,7 @@ public class NTMs {
     private int lead_time;
     private String description;
     private String unit_of_measure;
+    private int sequence;
 
     @OneToMany(mappedBy = "ntMs_usage")
     @JsonIgnore
@@ -35,7 +36,7 @@ public class NTMs {
     private MainEntity main_entity_material;
 
 
-    public NTMs(String name, String code, String size, String description,double quantity,String unit_of_measure,int lead_time) {
+    public NTMs(String name, String code, String size, String description,double quantity,String unit_of_measure,int lead_time,int sequence) {
         this.name = name;
         this.code = code;
         this.size = size;
@@ -43,6 +44,7 @@ public class NTMs {
         this.quantity=quantity;
         this.unit_of_measure=unit_of_measure;
         this.lead_time=lead_time;
+        this.sequence=sequence;
     }
 
     public NTMs() {
@@ -105,6 +107,14 @@ public class NTMs {
 
     public void setUnit_of_measure(String unit_of_measure) {
         this.unit_of_measure = unit_of_measure;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
     }
 
     public Collection<PurchaseOrder> getPurchaseOrders() {

@@ -46,7 +46,8 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     @Override
     public Collection<NTMs> ntmsList(int limit) {
-        return ntMsRepository.findAll(PageRequest.of(0, limit)).toList();
+        log.info(ntMsRepository.findAllByOrderBySequenceAsc().toString());
+        return ntMsRepository.findAllByOrderBySequenceAsc();
     }
 
     @Override
@@ -83,6 +84,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             details.setUnit_of_measure(ntMs.getUnit_of_measure());
             details.setLead_time(ntMs.getLead_time());
             details.setMain_entity_material(ntMs.getMain_entity_material());
+            details.setSequence(ntMs.getSequence());
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -95,7 +97,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     public Collection<ntmsUsed> ntmsUsedList(LocalDate from, LocalDate to, int limit) {
         ArrayList<ntmsUsed> ntMsFin = new ArrayList<>();
-        Collection<NTMs> availableNTMs = this.ntmsList(limit);
+        Collection<NTMs> availableNTMs =ntMsRepository.findAllByOrderBySequenceAsc();
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
                 .collect(Collectors.toList());
@@ -126,7 +128,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     public Collection<NTMsRequiredExpected> ntmsRequiredExpectedList(int limit) {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
 
-        Collection<NTMs> availableNTMs = this.ntmsList(limit);;
+        Collection<NTMs> availableNTMs = ntMsRepository.findAllByOrderBySequenceAsc();
         Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100).stream().filter(pr->pr.getStatus().equals("Planned")).collect(Collectors.toList());
 
 
@@ -168,17 +170,13 @@ public class NTMsServiceImplementation implements iNTMsService {
 
 
                     if (materialUsage != null) {
-
                         if (ntMsRequiredExpected.size() > 0) {
-
                             try {
                                 NTMsRequiredExpected ntMsRequiredExpected2 = ntMsRequiredExpected
                                         .stream().filter(ntMsRequiredExpected3 -> ntMsRequiredExpected3.ntMs.getId() == ntMs.getId())
                                         .findAny()
                                         .get();
-
-
-
+                                
                                 if (ntMsRequiredExpected2 != null) {
                                     if (durationIndays < 31) {
                                         ntMsRequiredExpected1.quantity_required_30 = ntMsRequiredExpected2.quantity_required_30 + (materialUsage.getQuantity() * (productionQnty / 50));
