@@ -72,7 +72,7 @@ public class NTMsResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("used_ntms",ntMsServiceImplementation.ntmsUsedList(from,to,900000)))
+                        .data(of("used_ntms",ntMsServiceImplementation.completeNtmsUsed(from,to,900000)))
                         .message("successfully retrieved used ntms")
                         .status(OK)
                         .statusCode(OK.value())

@@ -53,6 +53,7 @@ public class ProductServiceImplementation implements iProductService {
                 .collect(Collectors.toList());
         for (Product pd : availableProducts) {
             ProducedProduct pp=new ProducedProduct();
+            pp.setId(pd.getId());
             pp.setCode(pd.getCode());
             pp.setSize(pd.getSize());
             pp.setName(pd.getName());
@@ -108,7 +109,8 @@ public class ProductServiceImplementation implements iProductService {
     return  Boolean.FALSE;
     }
     @Data
-    class ProducedProduct{
+    public class ProducedProduct{
+        Long id;
         private MainEntity main_entity_product;
         private String name;
         private String code;

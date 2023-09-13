@@ -3,6 +3,7 @@ package com.zarkcigarettes.DailyDeepDive_ERP.api.main.ntms;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.config.currency.iCurrencyService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.inc.ActivityLogService;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.material_usage.MaterialUsageServiceImplementation;
+import com.zarkcigarettes.DailyDeepDive_ERP.api.main.product.ProductServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.production_run.ProductionRunServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.purchase_order.PurchaseOrderServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.dao.CurrencyRepository;
@@ -43,11 +44,32 @@ public class NTMsServiceImplementation implements iNTMsService {
     private final MaterialUsageServiceImplementation materialUsageServiceImplementation;
     private final PurchaseOrderServiceImplementation purchaseOrderServiceImplementation;
     private final ActivityLogService activityLogService;
+    private final ProductServiceImplementation productServiceImplementation;
 
     @Override
-    public Collection<NTMs> ntmsList(int limit) {
-        log.info(ntMsRepository.findAllByOrderBySequenceAsc().toString());
-        return ntMsRepository.findAllByOrderBySequenceAsc();
+    public Collection<ntmsUsed> ntmsList(int limit) {
+        LocalDate startDate=LocalDate.parse("2023-08-01");
+        LocalDate endDate=startDate.plusYears(3);
+        Collection<ntmsUsed> usedNTMs=this.ntmsUsedList(startDate, endDate, 1000000);
+        List<NTMs> ntmsOpeningBalance=ntMsRepository.findAllByOrderBySequenceAsc();
+
+        Collection<PurchaseOrder> deliveredPurchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
+                stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
+                .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(startDate) && d_po.getDelivery_date().isBefore(endDate))).collect(Collectors.toList());
+
+        for(ntmsUsed usedNTM:usedNTMs){
+            NTMs ntmOpeningBalance=ntmsOpeningBalance.stream().filter(ntms->ntms.getId()==usedNTM.getId()).findAny().get();
+            List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream().filter(ntms->ntms.getNtMs().getId()==usedNTM.getId()).collect(Collectors.toList());
+            double deliveredPOs=0;
+            for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
+                deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
+            }
+            double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-usedNTM.getQuantity();
+            usedNTM.setQuantity(availableQuantity);
+
+        }
+
+        return usedNTMs;
     }
 
     @Override
@@ -80,7 +102,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             details.setCode(ntMs.getCode());
             details.setSize(ntMs.getSize());
             details.setDescription(ntMs.getDescription());
-            details.setQuantity(ntMs.getQuantity());
+            details.setQuantity(details.getQuantity());
             details.setUnit_of_measure(ntMs.getUnit_of_measure());
             details.setLead_time(ntMs.getLead_time());
             details.setMain_entity_material(ntMs.getMain_entity_material());
@@ -99,12 +121,13 @@ public class NTMsServiceImplementation implements iNTMsService {
         ArrayList<ntmsUsed> ntMsFin = new ArrayList<>();
         Collection<NTMs> availableNTMs =ntMsRepository.findAllByOrderBySequenceAsc();
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
-                .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from.minusDays(1)) && m_used.getProductionRun().getFrom_date().isBefore(to.plusDays(1)))
+                .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from) && m_used.getProductionRun().getFrom_date().isBefore(to))
                 .collect(Collectors.toList());
 
         for (NTMs nt : availableNTMs) {
             NTMs ntMs = nt;
             ntmsUsed ntm=new ntmsUsed();
+            ntm.setId(ntMs.getId());
             ntm.setCode(ntMs.getCode());
             ntm.setSize(ntMs.getSize());
             ntm.setName(ntMs.getName());
@@ -124,15 +147,80 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
 
+    public Collection<ntmsUsed> openingBalance(LocalDate endDate) {
+        LocalDate startDate=LocalDate.parse("2023-08-01");
+        Collection<ntmsUsed> usedNTMs=this.ntmsUsedList(startDate, endDate, 1000000);
+        List<NTMs> ntmsOpeningBalance=ntMsRepository.findAllByOrderBySequenceAsc();
+
+        Collection<PurchaseOrder> deliveredPurchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
+                stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
+                .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(startDate) && d_po.getDelivery_date().isBefore(endDate))).collect(Collectors.toList());
+
+        for(ntmsUsed usedNTM:usedNTMs){
+            NTMs ntmOpeningBalance=ntmsOpeningBalance.stream().filter(ntms->ntms.getId()==usedNTM.getId()).findAny().get();
+            List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream().filter(ntms->ntms.getNtMs().getId()==usedNTM.getId()).collect(Collectors.toList());
+            double deliveredPOs=0;
+            for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
+                deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
+            }
+            double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-usedNTM.getQuantity();
+            usedNTM.setQuantity(availableQuantity);
+
+        }
+
+        return usedNTMs;
+    }
+
+    public Collection<completeNtmsUsed> completeNtmsUsed(LocalDate from, LocalDate to, int limit) {
+
+        ArrayList<completeNtmsUsed> ntMsFin = new ArrayList<>();
+        Collection<ntmsUsed> availableNTMs =this.ntmsUsedList(from,to,limit);
+
+        List<ntmsUsed> ntmsOpeningBalance=new ArrayList<>(this.openingBalance(from));
+
+        Collection<PurchaseOrder> deliveredPurchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
+                stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
+                .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(from.plusDays(1)) && d_po.getDelivery_date().isBefore(to.plusDays(1)))).collect(Collectors.toList());
+
+        Collection<ProductServiceImplementation.ProducedProduct> producedProducts= productServiceImplementation.producedList(from,to,limit);
+
+        Collection <MaterialUsage> materialUsage = materialUsageServiceImplementation.materialUsageList(producedProducts.stream().findFirst().get().getId());
+
+
+        for (ntmsUsed nt : availableNTMs) {
+            completeNtmsUsed ntm=new completeNtmsUsed();
+            ntmsUsed ntmOpeningBalance=ntmsOpeningBalance.stream().filter(ntms->ntms.getId()==nt.getId()).findAny().get();
+            List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream().filter(ntms->ntms.getNtMs().getId()==nt.getId()).collect(Collectors.toList());
+            double deliveredPOs=0;
+            for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
+                deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
+            }
+            double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity();
+            ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
+            ntm.setDelivered_ntms(deliveredPOs);
+            ntm.setUsed_ntms(nt.getQuantity());
+            nt.setQuantity(availableQuantity);
+            ntm.setNtmsUsed(nt);
+            ProductServiceImplementation.ProducedProduct producedProduct=producedProducts.stream().filter(pp->pp.getMain_entity_product().equals(nt.getMain_entity_material())).findAny().get();
+            ntm.setProduced_quantity(producedProduct.getQuantity());
+            MaterialUsage materialUsage1=materialUsage.stream()
+                    .filter(materialUsage2 -> materialUsage2.getNtMs_usage().getId().equals(nt.getId()))
+                    .findAny().get();
+            ntm.setUsage_per_case(materialUsage1.getQuantity());
+
+            ntMsFin.add(ntm);
+        }
+        return ntMsFin;
+    }
 
     public Collection<NTMsRequiredExpected> ntmsRequiredExpectedList(int limit) {
         ArrayList<NTMsRequiredExpected> ntMsRequiredExpected = new ArrayList<>();
 
-        Collection<NTMs> availableNTMs = ntMsRepository.findAllByOrderBySequenceAsc();
+        Collection<ntmsUsed> availableNTMs = this.ntmsList(limit);
         Collection<ProductionRun> productionRuns = productionRunServiceImplementation.productionRunList(100).stream().filter(pr->pr.getStatus().equals("Planned")).collect(Collectors.toList());
 
 
-        for (NTMs ntMs : availableNTMs) {
+        for (ntmsUsed ntMs : availableNTMs) {
             NTMsRequiredExpected ntMsRequiredExpected1 = new NTMsRequiredExpected();
             ntMsRequiredExpected1.ntMs = ntMs;
             int productionRunsDup = 0;
@@ -165,7 +253,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
                     MaterialUsage materialUsage = materialUsageServiceImplementation.materialUsageList(productForProduction.getId())
                             .stream()
-                            .filter(materialUsage1 -> materialUsage1.getNtMs_usage().equals(ntMs))
+                            .filter(materialUsage1 -> materialUsage1.getNtMs_usage().getId().equals(ntMs.getId()))
                             .findAny().get();
 
 
@@ -295,7 +383,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     @Data
     class NTMsRequiredExpected {
-        private NTMs ntMs;
+        private ntmsUsed ntMs;
         private double quantity_required_30;
         private double quantity_expected_30;
         private double quantity_required_60;
@@ -316,6 +404,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
     @Data
     class ntmsUsed{
+        Long id;
         private MainEntity main_entity_material;
         private String name;
         private String code;
@@ -324,6 +413,16 @@ public class NTMsServiceImplementation implements iNTMsService {
         private int lead_time;
         private String description;
         private String unit_of_measure;
+    }
+
+    @Data
+    class completeNtmsUsed{
+        ntmsUsed ntmsUsed;
+        double opening_stock;
+        double used_ntms;
+        double delivered_ntms;
+        double produced_quantity;
+        double usage_per_case;
     }
 
 }
