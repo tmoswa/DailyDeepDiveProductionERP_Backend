@@ -38,7 +38,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", productionMaterialUsage.getNtMs_usage().getId())));
 
         double quantityNew=details.getQuantity()-productionMaterialUsage.getQuantity();
-        details.setQuantity(quantityNew);
+        //details.setQuantity(quantityNew);
 
         activityLogService.addActivityLog("Added Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
@@ -59,7 +59,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", productionMaterialUsage.getNtMs_usage().getId())));
 
         double quantityNew=details.getQuantity()+productionMaterialUsage.getQuantity();
-        details.setQuantity(quantityNew);
+        //details.setQuantity(quantityNew);
 
         activityLogService.addActivityLog("Deleted Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , of quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
@@ -94,7 +94,7 @@ public class ProductionRunMaterialUsageServiceImplementation implements iProduct
                 .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", productionMaterialUsage.getNtMs_usage().getId())));
 
         double quantityNew=NTMsDetails.getQuantity()-details.getQuantity()+productionMaterialUsage.getQuantity();
-        details.setQuantity(quantityNew);
+        //NTMsDetails.setQuantity(quantityNew);
 
         activityLogService.addActivityLog("Updated Production Run Material Usage of : "+productionMaterialUsage.getNtMs_usage().getName() +" , from quantity "+details.getQuantity()+" , to quantity "+productionMaterialUsage.getQuantity()+" , of Product: "+productionMaterialUsage.getProductionRun().getName(),"Production Run Material usage");
 
