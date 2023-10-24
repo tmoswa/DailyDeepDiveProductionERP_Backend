@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
@@ -116,10 +116,10 @@ public class PurchaseOrderResource {
         LocalDate from=LocalDate.parse(fro).minusDays(1);
         LocalDate to=LocalDate.parse(tto).plusDays(1);
 
-
-        Collection<PurchaseOrder> purchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
+        List<PurchaseOrder> purchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
                 stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
                 .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(from) && d_po.getDelivery_date().isBefore(to))).collect(Collectors.toList());
+        purchaseOrders.sort(new POOdered());
 
         return  ResponseEntity.ok(
                 Response.builder()
@@ -213,4 +213,20 @@ public class PurchaseOrderResource {
     }
 
 
+}
+
+class POOdered implements Comparator<PurchaseOrder>{
+
+    @Override
+    public int compare(PurchaseOrder o1, PurchaseOrder o2) {
+        if(o1.getDelivery_date().isAfter(o2.getDelivery_date())){
+            return 1;
+        }
+        else if(o1.getDelivery_date().isBefore(o2.getDelivery_date())){
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    }
 }
