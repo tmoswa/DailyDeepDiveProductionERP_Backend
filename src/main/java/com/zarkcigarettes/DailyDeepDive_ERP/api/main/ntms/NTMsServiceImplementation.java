@@ -242,6 +242,7 @@ public class NTMsServiceImplementation implements iNTMsService {
         ArrayList<NTMsWithCountingIssues> countingIssues= new ArrayList<>();
         LocalDate ld=LocalDate.parse("2023-11-28");
         if(ld.isAfter(from) && ld.isBefore(to)) {
+            log.info("we are here");
             for (NTMs ntMsFin : allNTMs) {
                 NTMsWithCountingIssues ntMsWithCountingIssues = new NTMsWithCountingIssues();
                 ntMsWithCountingIssues.ntm = ntMsFin;
