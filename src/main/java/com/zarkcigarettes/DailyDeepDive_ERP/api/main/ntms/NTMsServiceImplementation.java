@@ -328,7 +328,7 @@ public class NTMsServiceImplementation implements iNTMsService {
             if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
                 NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
                 ntm.setCountingIssues(countingIssues0);
-                 availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
+               //  availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
             }
 
 
