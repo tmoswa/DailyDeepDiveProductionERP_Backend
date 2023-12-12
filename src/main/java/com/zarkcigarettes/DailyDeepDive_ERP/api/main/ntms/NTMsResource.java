@@ -5,6 +5,7 @@ import com.zarkcigarettes.DailyDeepDive_ERP.api.main.main_entity.MainEntityServi
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.Response;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.Currency;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.NTMs;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("api/ntms")
+@Slf4j
 public class NTMsResource {
 
     private final NTMsServiceImplementation ntMsServiceImplementation;
@@ -68,7 +70,8 @@ public class NTMsResource {
         LocalDate from=LocalDate.parse(fro).minusDays(1);
         LocalDate to=LocalDate.parse(tto).plusDays(1);
 
-
+        log.info("from0: "+fro);
+        log.info("to0: "+tto);
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())

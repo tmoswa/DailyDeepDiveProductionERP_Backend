@@ -124,9 +124,70 @@ public class NTMsServiceImplementation implements iNTMsService {
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from) && m_used.getProductionRun().getFrom_date().isBefore(to))
                 .collect(Collectors.toList());
 
+        ArrayList<NTMsWithCountingIssues> countingIssues= new ArrayList<>();
+
+        LocalDate ld=LocalDate.parse("2023-11-30");
+        if(ld.isAfter(from) && ld.isBefore(to)) {
+            for (NTMs ntMsFin1 : availableNTMs) {
+                NTMsWithCountingIssues ntMsWithCountingIssues = new NTMsWithCountingIssues();
+                ntMsWithCountingIssues.ntm = ntMsFin1;
+                switch (ntMsFin1.getCode()) {
+                    case "AKA14-20-1":
+                        ntMsWithCountingIssues.adjustCounting = 101;
+                        break;
+                    case "008":
+                        ntMsWithCountingIssues.adjustCounting = 16930;
+                        break;
+                    case "005":
+                        ntMsWithCountingIssues.adjustCounting = 3.2;
+                        break;
+                    case "006":
+                        ntMsWithCountingIssues.adjustCounting = 1.36;
+                        break;
+                    case "007":
+                        ntMsWithCountingIssues.adjustCounting = 1.86;
+                        break;
+                    case "010":
+                        ntMsWithCountingIssues.adjustCounting = 1.9;
+                        break;
+                    case "009":
+                        ntMsWithCountingIssues.adjustCounting = 2.05;
+                        break;
+                    case "011":
+                        ntMsWithCountingIssues.adjustCounting = 0.09;
+                        break;
+                    case "012":
+                        ntMsWithCountingIssues.adjustCounting = 0.4;
+                        break;
+                    case "013":
+                        ntMsWithCountingIssues.adjustCounting = 0.73;
+                        break;
+                    case "001":
+                        ntMsWithCountingIssues.adjustCounting = 5.9;
+                        break;
+                    case "002":
+                        ntMsWithCountingIssues.adjustCounting = -59.2;
+                        break;
+                    case "003":
+                        ntMsWithCountingIssues.adjustCounting = -24.3;
+                        break;
+                    case "014":
+                        ntMsWithCountingIssues.adjustCounting = -3.15;
+                        break;
+                    case "015":
+                        ntMsWithCountingIssues.adjustCounting = 8;
+                        break;
+                    default:
+                        ntMsWithCountingIssues.adjustCounting = 0;
+                        break;
+                }
+                countingIssues.add(ntMsWithCountingIssues);
+            }
+        }
+
         for (NTMs nt : availableNTMs) {
             NTMs ntMs = nt;
-            ntmsUsed ntm=new ntmsUsed();
+            ntmsUsed ntm= new ntmsUsed();
             ntm.setId(ntMs.getId());
             ntm.setCode(ntMs.getCode());
             ntm.setSize(ntMs.getSize());
@@ -140,6 +201,11 @@ public class NTMsServiceImplementation implements iNTMsService {
                 if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
                     ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
                 }
+            }
+
+            if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
+                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
+                ntm.setQuantity(ntm.getQuantity()-countingIssues0.getAdjustCounting());
             }
             ntMsFin.add(ntm);
         }
@@ -172,6 +238,68 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
     public Collection<completeNtmsUsed> completeNtmsUsed(LocalDate from, LocalDate to, int limit) {
+        Collection<NTMs> allNTMs =ntMsRepository.findAllByOrderBySequenceAsc();
+        ArrayList<NTMsWithCountingIssues> countingIssues= new ArrayList<>();
+        LocalDate ld=LocalDate.parse("2023-11-28");
+        if(ld.isAfter(from) && ld.isBefore(to)) {
+            for (NTMs ntMsFin : allNTMs) {
+                NTMsWithCountingIssues ntMsWithCountingIssues = new NTMsWithCountingIssues();
+                ntMsWithCountingIssues.ntm = ntMsFin;
+                switch (ntMsFin.getCode()) {
+                    case "AKA14-20-1":
+                        ntMsWithCountingIssues.adjustCounting = 101;
+                        break;
+                    case "008":
+                        ntMsWithCountingIssues.adjustCounting = 16930;
+                        break;
+                    case "005":
+                        ntMsWithCountingIssues.adjustCounting = 3.2;
+                        break;
+                    case "006":
+                        ntMsWithCountingIssues.adjustCounting = 1.36;
+                        break;
+                    case "007":
+                        ntMsWithCountingIssues.adjustCounting = 1.86;
+                        break;
+                    case "010":
+                        ntMsWithCountingIssues.adjustCounting = 1.9;
+                        break;
+                    case "009":
+                        ntMsWithCountingIssues.adjustCounting = 2.05;
+                        break;
+                    case "011":
+                        ntMsWithCountingIssues.adjustCounting = 0.09;
+                        break;
+                    case "012":
+                        ntMsWithCountingIssues.adjustCounting = 0.4;
+                        break;
+                    case "013":
+                        ntMsWithCountingIssues.adjustCounting = 0.73;
+                        break;
+                    case "001":
+                        ntMsWithCountingIssues.adjustCounting = 5.9;
+                        break;
+                    case "002":
+                        ntMsWithCountingIssues.adjustCounting = -59.2;
+                        break;
+                    case "003":
+                        ntMsWithCountingIssues.adjustCounting = -24.3;
+                        break;
+                    case "014":
+                        ntMsWithCountingIssues.adjustCounting = -3.15;
+                        break;
+                    case "015":
+                        ntMsWithCountingIssues.adjustCounting = 8;
+                        break;
+                    default:
+                        ntMsWithCountingIssues.adjustCounting = 0;
+                        break;
+                }
+                countingIssues.add(ntMsWithCountingIssues);
+            }
+        }
+
+
 
         ArrayList<completeNtmsUsed> ntMsFin = new ArrayList<>();
         Collection<ntmsUsed> availableNTMs =this.ntmsUsedList(from,to,limit);
@@ -188,7 +316,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
 
         for (ntmsUsed nt : availableNTMs) {
-            completeNtmsUsed ntm=new completeNtmsUsed();
+            completeNtmsUsed ntm= new completeNtmsUsed();
             ntmsUsed ntmOpeningBalance=ntmsOpeningBalance.stream().filter(ntms->ntms.getId()==nt.getId()).findAny().get();
             List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream().filter(ntms->ntms.getNtMs().getId()==nt.getId()).collect(Collectors.toList());
             double deliveredPOs=0;
@@ -196,11 +324,19 @@ public class NTMsServiceImplementation implements iNTMsService {
                 deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
             }
             double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity();
+            if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
+                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
+                ntm.setCountingIssues(countingIssues0);
+                 availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
+            }
+
+
             ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
             ntm.setDelivered_ntms(deliveredPOs);
             ntm.setUsed_ntms(nt.getQuantity());
             nt.setQuantity(availableQuantity);
             ntm.setNtmsUsed(nt);
+
             ProductServiceImplementation.ProducedProduct producedProduct=producedProducts.stream().filter(pp->pp.getMain_entity_product().equals(nt.getMain_entity_material())).findAny().get();
             ntm.setProduced_quantity(producedProduct.getQuantity());
             MaterialUsage materialUsage1=materialUsage.stream()
@@ -382,6 +518,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
     @Data
+    static
     class NTMsRequiredExpected {
         private ntmsUsed ntMs;
         private double quantity_required_30;
@@ -399,11 +536,12 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
     @Data
+    static
     class NTMsUsed {
         private NTMs ntMs;
     }
     @Data
-    class ntmsUsed{
+    public static class ntmsUsed{
         Long id;
         private MainEntity main_entity_material;
         private String name;
@@ -416,6 +554,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     }
 
     @Data
+    static
     class completeNtmsUsed{
         ntmsUsed ntmsUsed;
         double opening_stock;
@@ -423,6 +562,13 @@ public class NTMsServiceImplementation implements iNTMsService {
         double delivered_ntms;
         double produced_quantity;
         double usage_per_case;
+        NTMsWithCountingIssues countingIssues;
     }
 
+    @Data
+    static
+    class NTMsWithCountingIssues{
+        NTMs ntm;
+        double adjustCounting;
+    }
 }
