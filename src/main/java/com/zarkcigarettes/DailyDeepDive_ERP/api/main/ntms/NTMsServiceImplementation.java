@@ -25,10 +25,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -124,11 +121,45 @@ public class NTMsServiceImplementation implements iNTMsService {
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from) && m_used.getProductionRun().getFrom_date().isBefore(to))
                 .collect(Collectors.toList());
 
+
+
+        for (NTMs nt : availableNTMs) {
+            NTMs ntMs = nt;
+            ntmsUsed ntm= new ntmsUsed();
+            ntm.setId(ntMs.getId());
+            ntm.setCode(ntMs.getCode());
+            ntm.setSize(ntMs.getSize());
+            ntm.setName(ntMs.getName());
+            ntm.setDescription(ntMs.getDescription());
+            ntm.setLead_time(ntMs.getLead_time());
+            ntm.setUnit_of_measure(ntMs.getUnit_of_measure());
+            ntm.setMain_entity_material(ntMs.getMain_entity_material());
+            ntm.setQuantity(0);
+            for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
+                if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
+                    ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
+                }
+            }
+
+
+            ntMsFin.add(ntm);
+        }
+        return ntMsFin;
+    }
+
+
+    public Collection<ntmsUsed> openingBalance(LocalDate endDate) {
+        LocalDate startDate=LocalDate.parse("2023-08-01");
+        Collection<ntmsUsed> usedNTMs=this.ntmsUsedList(startDate, endDate, 1000000);
+        List<NTMs> ntmsOpeningBalance=ntMsRepository.findAllByOrderBySequenceAsc();
+
+
+
         ArrayList<NTMsWithCountingIssues> countingIssues= new ArrayList<>();
 
         LocalDate ld=LocalDate.parse("2023-11-30");
-        if(ld.isBefore(from) || ld.isBefore(to)) {
-            for (NTMs ntMsFin1 : availableNTMs) {
+        if(ld.isBefore(endDate)) {
+            for (NTMs ntMsFin1 : ntmsOpeningBalance) {
                 NTMsWithCountingIssues ntMsWithCountingIssues = new NTMsWithCountingIssues();
                 ntMsWithCountingIssues.ntm = ntMsFin1;
                 switch (ntMsFin1.getCode()) {
@@ -185,39 +216,6 @@ public class NTMsServiceImplementation implements iNTMsService {
             }
         }
 
-        for (NTMs nt : availableNTMs) {
-            NTMs ntMs = nt;
-            ntmsUsed ntm= new ntmsUsed();
-            ntm.setId(ntMs.getId());
-            ntm.setCode(ntMs.getCode());
-            ntm.setSize(ntMs.getSize());
-            ntm.setName(ntMs.getName());
-            ntm.setDescription(ntMs.getDescription());
-            ntm.setLead_time(ntMs.getLead_time());
-            ntm.setUnit_of_measure(ntMs.getUnit_of_measure());
-            ntm.setMain_entity_material(ntMs.getMain_entity_material());
-            ntm.setQuantity(0);
-            for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
-                if (productionMaterialUsage.getNtMs_usage().getId() == nt.getId()) {
-                    ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
-                }
-            }
-
-            if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
-                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
-                ntm.setQuantity(ntm.getQuantity()-countingIssues0.getAdjustCounting());
-            }
-            ntMsFin.add(ntm);
-        }
-        return ntMsFin;
-    }
-
-
-    public Collection<ntmsUsed> openingBalance(LocalDate endDate) {
-        LocalDate startDate=LocalDate.parse("2023-08-01");
-        Collection<ntmsUsed> usedNTMs=this.ntmsUsedList(startDate, endDate, 1000000);
-        List<NTMs> ntmsOpeningBalance=ntMsRepository.findAllByOrderBySequenceAsc();
-
         Collection<PurchaseOrder> deliveredPurchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
                 stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
                 .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(startDate) && d_po.getDelivery_date().isBefore(endDate))).collect(Collectors.toList());
@@ -231,6 +229,11 @@ public class NTMsServiceImplementation implements iNTMsService {
             }
             double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-usedNTM.getQuantity();
             usedNTM.setQuantity(availableQuantity);
+
+            if(countingIssues.stream().anyMatch(ntmZ-> Objects.equals(ntmZ.ntm.getId(), usedNTM.getId()))){
+                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ-> Objects.equals(ntmZ.ntm.getId(), usedNTM.getId())).findAny().get();
+                usedNTM.setQuantity(usedNTM.getQuantity()-countingIssues0.getAdjustCounting());
+            }
 
         }
 
@@ -324,18 +327,15 @@ public class NTMsServiceImplementation implements iNTMsService {
             for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
                 deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
             }
-            ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
             double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity();
             if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
                 NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
                 ntm.setCountingIssues(countingIssues0);
-                if(from.isAfter(ld)){
-                    ntm.setOpening_stock(ntmOpeningBalance.getQuantity()-countingIssues0.getAdjustCounting());
-                }
-                    }
+                 availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
+            }
 
 
-
+            ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
             ntm.setDelivered_ntms(deliveredPOs);
             ntm.setUsed_ntms(nt.getQuantity());
             nt.setQuantity(availableQuantity);
