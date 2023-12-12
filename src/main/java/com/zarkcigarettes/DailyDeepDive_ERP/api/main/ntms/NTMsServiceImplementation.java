@@ -324,15 +324,18 @@ public class NTMsServiceImplementation implements iNTMsService {
             for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
                 deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
             }
+            ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
             double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity();
             if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
                 NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
                 ntm.setCountingIssues(countingIssues0);
-               //  availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
-            }
+                if(from.isAfter(ld)){
+                    ntm.setOpening_stock(ntmOpeningBalance.getQuantity()-countingIssues0.getAdjustCounting());
+                }
+                    }
 
 
-            ntm.setOpening_stock(ntmOpeningBalance.getQuantity());
+
             ntm.setDelivered_ntms(deliveredPOs);
             ntm.setUsed_ntms(nt.getQuantity());
             nt.setQuantity(availableQuantity);
