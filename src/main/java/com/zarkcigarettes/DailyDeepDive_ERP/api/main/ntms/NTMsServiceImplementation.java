@@ -409,10 +409,16 @@ public class NTMsServiceImplementation implements iNTMsService {
 
             ProductServiceImplementation.ProducedProduct producedProduct=producedProducts.stream().filter(pp->pp.getMain_entity_product().equals(nt.getMain_entity_material())).findAny().get();
             ntm.setProduced_quantity(producedProduct.getQuantity());
-            MaterialUsage materialUsage1=materialUsage.stream()
-                    .filter(materialUsage2 -> materialUsage2.getNtMs_usage().getId().equals(nt.getId()))
-                    .findAny().get();
-            ntm.setUsage_per_case(materialUsage1.getQuantity());
+            if(materialUsage.stream()
+                    .anyMatch(materialUsage2 -> materialUsage2.getNtMs_usage().getId().equals(nt.getId()))){
+                MaterialUsage materialUsage1=materialUsage.stream()
+                        .filter(materialUsage2 -> materialUsage2.getNtMs_usage().getId().equals(nt.getId()))
+                        .findAny().get();
+                ntm.setUsage_per_case(materialUsage1.getQuantity());
+            }else {
+                ntm.setUsage_per_case(0);
+            }
+
 
             ntMsFin.add(ntm);
         }
