@@ -153,7 +153,7 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
             NTMs ntMs=  ntMsRepository.findById(purchaseOrder.getNtMs().getId())
                     .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", id)));
             double totalNTMs=ntMs.getQuantity()+details.getQuantity();
-            ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
+           // ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
         }
 
         activityLogService.addActivityLog("Updated Purchase Order of: "+purchaseOrder.getNtMs().getName()+" , quantity of: "+purchaseOrder.getQuantity()+ " , status: "+purchaseOrder.getStatus()+" , dated:"+purchaseOrder.getOrder_date(),"Purchase Order");
@@ -191,7 +191,7 @@ public class PurchaseOrderServiceImplementation implements iPurchaseOrderService
                 NTMs ntMs=  ntMsRepository.findById(purchaseOrder.getNtMs().getId())
                         .orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("ntms with id %d not found", id)));
                 double totalNTMs=ntMs.getQuantity()+purchaseOrder.getDelivered_quantity();
-                ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
+               // ntMs.setQuantity(Double.parseDouble(df.format(totalNTMs)));
 
 
 

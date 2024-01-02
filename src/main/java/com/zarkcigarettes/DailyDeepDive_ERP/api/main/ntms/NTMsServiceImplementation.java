@@ -616,18 +616,7 @@ public class NTMsServiceImplementation implements iNTMsService {
     class NTMsUsed {
         private NTMs ntMs;
     }
-    @Data
-    public static class ntmsUsed{
-        Long id;
-        private MainEntity main_entity_material;
-        private String name;
-        private String code;
-        private String size;
-        private double quantity;
-        private int lead_time;
-        private String description;
-        private String unit_of_measure;
-    }
+
 
     @Data
     static

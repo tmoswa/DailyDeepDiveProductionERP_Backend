@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public interface iNTMsService {
 
-    Collection<NTMsServiceImplementation.ntmsUsed> ntmsList(int limit);
+    Collection<ntmsUsed> ntmsList(int limit);
     Collection<NTMs> ntmList(int limit);
     NTMs saveNTMs(NTMs ntMs);
     boolean deleteNTMs(Long id);
