@@ -28,7 +28,7 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
     private final ProductRepository productRepository;
     private final ActivityLogService activityLogService;
 
-    Comparator<MaterialUsage> usageComparator = new Comparator<MaterialUsage>() {
+    public static Comparator<MaterialUsage> usageComparator = new Comparator<MaterialUsage>() {
         @Override
         public int compare(MaterialUsage o1, MaterialUsage o2) {
             return Integer.compare(o1.getNtMs_usage().getSequence(), o2.getNtMs_usage().getSequence());

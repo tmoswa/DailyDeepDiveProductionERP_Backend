@@ -4,7 +4,9 @@ import com.zarkcigarettes.DailyDeepDive_ERP.api.config.currency.CurrencyServiceI
 import com.zarkcigarettes.DailyDeepDive_ERP.api.main.main_entity.MainEntityServiceImplementation;
 import com.zarkcigarettes.DailyDeepDive_ERP.api.util.Response;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.Currency;
+import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.MaterialUsage;
 import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.NTMs;
+import com.zarkcigarettes.DailyDeepDive_ERP.persistence.model.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,9 +66,9 @@ public class NTMsResource {
         );
     }
 
-    @GetMapping("/usedMaterials/{fro}/{tto}")
+    @PostMapping("/usedMaterials/{fro}/{tto}")
     @PreAuthorize("hasAuthority('PRIVILEGE-SUBSIDIARIES-READ')")
-    public ResponseEntity<Response> getUsedMaterials(@PathVariable("fro") String fro,@PathVariable("tto") String tto) {
+    public ResponseEntity<Response> getUsedMaterials(@PathVariable("fro") String fro, @PathVariable("tto") String tto, @RequestBody Product product) {
         LocalDate from=LocalDate.parse(fro).minusDays(1);
         LocalDate to=LocalDate.parse(tto).plusDays(1);
 
@@ -75,7 +77,7 @@ public class NTMsResource {
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("used_ntms",ntMsServiceImplementation.completeNtmsUsed(from,to,900000)))
+                        .data(of("used_ntms",ntMsServiceImplementation.completeNtmsUsed(from,to,product,900000)))
                         .message("successfully retrieved used ntms")
                         .status(OK)
                         .statusCode(OK.value())

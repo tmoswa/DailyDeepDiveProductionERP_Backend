@@ -19,4 +19,7 @@ public interface ProductionMaterialUsageRepository extends JpaRepository<Product
 
     @Query("SELECT s FROM ProductionMaterialUsage s where s.ntMs_usage=?1")
     Collection<ProductionMaterialUsage> findProductionMaterialUsageByntMs_usage(NTMs ntms);
+
+    @Query("SELECT s FROM ProductionMaterialUsage s where s.product_usage=?1")
+    Collection<ProductionMaterialUsage> findProductionMaterialUsageByproduct_usage(Product product);
 }
