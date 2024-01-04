@@ -181,7 +181,7 @@ public class NTMsServiceImplementation implements iNTMsService {
 
     public Collection<ntmsUsed> ntmsUsedList(LocalDate from, LocalDate to, int limit,boolean perProduct, Product product) {
         ArrayList<ntmsUsed> ntMsFin = new ArrayList<>();
-        Collection<NTMs> availableNTMs =ntMsRepository.findAllByOrderBySequenceAsc();
+        List<NTMs> availableNTMs =ntMsRepository.findAllByOrderBySequenceAsc();
 
         List<ProductionMaterialUsage> productionMaterialUsages = productionMaterialUsageRepository.findAll()
                 .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from) && m_used.getProductionRun().getFrom_date().isBefore(to))
@@ -198,6 +198,8 @@ public class NTMsServiceImplementation implements iNTMsService {
            productionMaterialUsages = productionMaterialUsageRepository.findProductionMaterialUsageByproduct_usage(product)
                     .stream().filter(m_used -> m_used.getProductionRun().getFrom_date().isAfter(from) && m_used.getProductionRun().getFrom_date().isBefore(to))
                     .collect(Collectors.toList());
+
+            availableNTMs.sort(ntmsComparator);
         }
 
         for (NTMs nt : availableNTMs) {
@@ -317,14 +319,23 @@ public class NTMsServiceImplementation implements iNTMsService {
         return usedNTMs;
     }
 
+    public static Comparator<NTMs> ntmsComparator = new Comparator<NTMs>() {
+        @Override
+        public int compare(NTMs o1, NTMs o2) {
+            return Integer.compare(o1.getSequence(), o2.getSequence());
+        }
+    };
+
     public Collection<completeNtmsUsed> completeNtmsUsed(LocalDate from, LocalDate to,Product product, int limit) {
-        Collection<NTMs> allNTMs =new ArrayList<>();
+        List<NTMs> allNTMs =new ArrayList<>();
 
         Collection<MaterialUsage> materialUsages = materialUsageRepository.findMaterialUsageByProduct(product);
         Collections.sort(new ArrayList<>(materialUsages), MaterialUsageServiceImplementation.usageComparator);
         for (MaterialUsage materialUsage : materialUsages) {
             allNTMs.add(materialUsage.getNtMs_usage());
         }
+
+        allNTMs.sort(ntmsComparator);
 
         Collection<ntmsUsed> ntmsClosingStock = this.ntmsList(limit);
 
