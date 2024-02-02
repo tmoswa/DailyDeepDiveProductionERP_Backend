@@ -455,7 +455,7 @@ public class NTMsServiceImplementation implements iNTMsService {
                 }
                // qtry+=pp.getQuantity();
             }
-           // ntm.setProduced_quantity(producedProduct.getQuantity());
+
             ntm.setProduced_quantity(qtry);
             if(materialUsage.stream()
                     .anyMatch(materialUsage2 -> materialUsage2.getNtMs_usage().getId().equals(nt.getId())))

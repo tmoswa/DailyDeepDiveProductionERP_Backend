@@ -101,7 +101,6 @@ public class SeedUsersDataLoader implements ApplicationListener<ContextRefreshed
 
 
         //password Privileges
-
         // == create initial roles
          List<Privilege> adminPrivileges = new ArrayList<>(Arrays.asList(
                 readToAllPrivilege,writeToAllPrivilege,deleteToAllPrivilege,

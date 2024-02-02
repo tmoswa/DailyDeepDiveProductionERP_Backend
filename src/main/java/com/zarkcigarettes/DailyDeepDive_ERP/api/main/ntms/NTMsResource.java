@@ -69,11 +69,9 @@ public class NTMsResource {
     @PostMapping("/usedMaterials/{fro}/{tto}")
     @PreAuthorize("hasAuthority('PRIVILEGE-SUBSIDIARIES-READ')")
     public ResponseEntity<Response> getUsedMaterials(@PathVariable("fro") String fro, @PathVariable("tto") String tto, @RequestBody Product product) {
-        LocalDate from=LocalDate.parse(fro).minusDays(1);
-        LocalDate to=LocalDate.parse(tto).plusDays(1);
+        LocalDate from=LocalDate.parse(fro);
+        LocalDate to=LocalDate.parse(tto);
 
-        log.info("from0: "+fro);
-        log.info("to0: "+tto);
         return  ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
