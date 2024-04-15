@@ -110,6 +110,95 @@ public class NTMsServiceImplementation implements iNTMsService {
             }
         }
 
+
+        LocalDate ld1=LocalDate.parse("2024-03-27");
+        if(ld1.isBefore(endDate)) {
+            log.info("we are here 2");
+            for (NTMsWithCountingIssues ntMsWithCountingIssues : countingIssues) {
+                switch (ntMsWithCountingIssues.getNtm().getCode()) {
+                    case "AKA14-20-1":
+                        ntMsWithCountingIssues.adjustCounting += 138.66;
+                        break;
+                    case "008":
+                        ntMsWithCountingIssues.adjustCounting += -1570;
+                        break;
+                    case "005":
+                        ntMsWithCountingIssues.adjustCounting += -1.2;
+                        break;
+                    case "006":
+                        ntMsWithCountingIssues.adjustCounting += -0.62;
+                        break;
+                    case "007":
+                        ntMsWithCountingIssues.adjustCounting += -2.76;
+                        break;
+                    case "010":
+                        ntMsWithCountingIssues.adjustCounting += 0.07;
+                        break;
+                    case "009":
+                        ntMsWithCountingIssues.adjustCounting += 2.71;
+                        break;
+                    case "011":
+                        ntMsWithCountingIssues.adjustCounting += -1.12;
+                        break;
+                    case "012":
+                        ntMsWithCountingIssues.adjustCounting += -0.14;
+                        break;
+                    case "013":
+                        ntMsWithCountingIssues.adjustCounting += 0.2;
+                        break;
+                    case "001":
+                        ntMsWithCountingIssues.adjustCounting += 4.96;
+                        break;
+                    case "002":
+                        ntMsWithCountingIssues.adjustCounting += -31.2;
+                        break;
+                    case "003":
+                        ntMsWithCountingIssues.adjustCounting += -13.34;
+                        break;
+                    case "014":
+                        ntMsWithCountingIssues.adjustCounting += -0.06;
+                        break;
+                    case "015":
+                        ntMsWithCountingIssues.adjustCounting += 24.78;
+                        break;
+                    case "016":
+                        ntMsWithCountingIssues.adjustCounting += 1116;
+                        break;
+                    case "019":
+                        ntMsWithCountingIssues.adjustCounting += -38075;
+                        break;
+                    case "020":
+                        ntMsWithCountingIssues.adjustCounting += -0.04;
+                        break;
+                    case "027":
+                        ntMsWithCountingIssues.adjustCounting += -3.81;
+                        break;
+                    case "024":
+                        ntMsWithCountingIssues.adjustCounting += -7.38;
+                        break;
+                    case "025":
+                        ntMsWithCountingIssues.adjustCounting += -0.29;
+                        break;
+                    case "021":
+                        ntMsWithCountingIssues.adjustCounting += 1.47;
+                        break;
+                    case "017":
+                        ntMsWithCountingIssues.adjustCounting += 1315;
+                        break;
+                    case "023": //blue rag
+                        ntMsWithCountingIssues.adjustCounting += -4.58;
+                        break;
+                    case "018": // Blue Blanks
+                        ntMsWithCountingIssues.adjustCounting += -346;
+                        break;
+                    default:
+                        ntMsWithCountingIssues.adjustCounting += 0;
+                        break;
+                }
+
+            }
+        }
+
         Collection<PurchaseOrder> deliveredPurchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).
                 stream().filter(ds_po->ds_po.getStatus().equals("Delivered"))
                 .collect(Collectors.toList()).stream().filter(d_po->(d_po.getDelivery_date().isAfter(startDate) && d_po.getDelivery_date().isBefore(endDate))).collect(Collectors.toList());
@@ -232,8 +321,6 @@ public class NTMsServiceImplementation implements iNTMsService {
         Collection<ntmsUsed> usedNTMs=this.ntmsUsedList(startDate, endDate, 1000000,false,new Product());
         List<NTMs> ntmsOpeningBalance=ntMsRepository.findAllByOrderBySequenceAsc();
 
-
-
         ArrayList<NTMsWithCountingIssues> countingIssues= new ArrayList<>();
 
         LocalDate ld=LocalDate.parse("2023-11-29");
@@ -292,6 +379,94 @@ public class NTMsServiceImplementation implements iNTMsService {
                         break;
                 }
                 countingIssues.add(ntMsWithCountingIssues);
+            }
+        }
+
+        LocalDate ld1=LocalDate.parse("2024-03-27");
+        if(ld1.isBefore(endDate)) {
+            log.info("we are here 2");
+            for (NTMsWithCountingIssues ntMsWithCountingIssues : countingIssues) {
+                switch (ntMsWithCountingIssues.getNtm().getCode()) {
+                    case "AKA14-20-1":
+                        ntMsWithCountingIssues.adjustCounting += 138.66;
+                        break;
+                    case "008":
+                        ntMsWithCountingIssues.adjustCounting += -1570;
+                        break;
+                    case "005":
+                        ntMsWithCountingIssues.adjustCounting += -1.2;
+                        break;
+                    case "006":
+                        ntMsWithCountingIssues.adjustCounting += -0.62;
+                        break;
+                    case "007":
+                        ntMsWithCountingIssues.adjustCounting += -2.76;
+                        break;
+                    case "010":
+                        ntMsWithCountingIssues.adjustCounting += 0.07;
+                        break;
+                    case "009":
+                        ntMsWithCountingIssues.adjustCounting += 2.71;
+                        break;
+                    case "011":
+                        ntMsWithCountingIssues.adjustCounting += -1.12;
+                        break;
+                    case "012":
+                        ntMsWithCountingIssues.adjustCounting += -0.14;
+                        break;
+                    case "013":
+                        ntMsWithCountingIssues.adjustCounting += 0.2;
+                        break;
+                    case "001":
+                        ntMsWithCountingIssues.adjustCounting += 4.96;
+                        break;
+                    case "002":
+                        ntMsWithCountingIssues.adjustCounting += -31.2;
+                        break;
+                    case "003":
+                        ntMsWithCountingIssues.adjustCounting += -13.34;
+                        break;
+                    case "014":
+                        ntMsWithCountingIssues.adjustCounting += -0.06;
+                        break;
+                    case "015":
+                        ntMsWithCountingIssues.adjustCounting += 24.78;
+                        break;
+                    case "016":
+                        ntMsWithCountingIssues.adjustCounting += 1116;
+                        break;
+                    case "019":
+                        ntMsWithCountingIssues.adjustCounting += -38075;
+                        break;
+                    case "020":
+                        ntMsWithCountingIssues.adjustCounting += -0.04;
+                        break;
+                    case "027":
+                        ntMsWithCountingIssues.adjustCounting += -3.81;
+                        break;
+                    case "024":
+                        ntMsWithCountingIssues.adjustCounting += -7.38;
+                        break;
+                    case "025":
+                        ntMsWithCountingIssues.adjustCounting += -0.29;
+                        break;
+                    case "021":
+                        ntMsWithCountingIssues.adjustCounting += 1.47;
+                        break;
+                    case "017":
+                        ntMsWithCountingIssues.adjustCounting += 1315;
+                        break;
+                    case "023": //blue rag
+                        ntMsWithCountingIssues.adjustCounting += -4.58;
+                        break;
+                    case "018": // Blue Blanks
+                        ntMsWithCountingIssues.adjustCounting += -346;
+                        break;
+                    default:
+                        ntMsWithCountingIssues.adjustCounting += 0;
+                        break;
+                }
+
             }
         }
 
@@ -391,6 +566,98 @@ public class NTMsServiceImplementation implements iNTMsService {
                         break;
                     case "015":
                         ntMsWithCountingIssues.adjustCounting = 8;
+                        break;
+                    default:
+                        ntMsWithCountingIssues.adjustCounting = 0;
+                        break;
+                }
+                countingIssues.add(ntMsWithCountingIssues);
+            }
+        }
+
+
+
+        LocalDate ld1=LocalDate.parse("2024-03-27");
+        if(ld1.isAfter(from) && ld1.isBefore(to)) {
+            log.info("we are here 2");
+            for (NTMs ntMsFin : allNTMs) {
+                NTMsWithCountingIssues ntMsWithCountingIssues = new NTMsWithCountingIssues();
+                ntMsWithCountingIssues.ntm = ntMsFin;
+                switch (ntMsFin.getCode()) {
+                    case "AKA14-20-1":
+                        ntMsWithCountingIssues.adjustCounting = 138.66;
+                        break;
+                    case "008":
+                        ntMsWithCountingIssues.adjustCounting = -1570;
+                        break;
+                    case "005":
+                        ntMsWithCountingIssues.adjustCounting = -1.2;
+                        break;
+                    case "006":
+                        ntMsWithCountingIssues.adjustCounting = -0.62;
+                        break;
+                    case "007":
+                        ntMsWithCountingIssues.adjustCounting = -2.76;
+                        break;
+                    case "010":
+                        ntMsWithCountingIssues.adjustCounting = 0.07;
+                        break;
+                    case "009":
+                        ntMsWithCountingIssues.adjustCounting = 2.71;
+                        break;
+                    case "011":
+                        ntMsWithCountingIssues.adjustCounting = -1.12;
+                        break;
+                    case "012":
+                        ntMsWithCountingIssues.adjustCounting = -0.14;
+                        break;
+                    case "013":
+                        ntMsWithCountingIssues.adjustCounting = 0.2;
+                        break;
+                    case "001":
+                        ntMsWithCountingIssues.adjustCounting = 4.96;
+                        break;
+                    case "002":
+                        ntMsWithCountingIssues.adjustCounting = -31.2;
+                        break;
+                    case "003":
+                        ntMsWithCountingIssues.adjustCounting = -13.34;
+                        break;
+                    case "014":
+                        ntMsWithCountingIssues.adjustCounting = -0.06;
+                        break;
+                    case "015":
+                        ntMsWithCountingIssues.adjustCounting = 24.78;
+                        break;
+                    case "016":
+                        ntMsWithCountingIssues.adjustCounting = 1116;
+                        break;
+                    case "019":
+                        ntMsWithCountingIssues.adjustCounting = -38075;
+                        break;
+                    case "020":
+                        ntMsWithCountingIssues.adjustCounting = -0.04;
+                        break;
+                    case "027":
+                        ntMsWithCountingIssues.adjustCounting = -3.81;
+                        break;
+                    case "024":
+                        ntMsWithCountingIssues.adjustCounting = -7.38;
+                        break;
+                    case "025":
+                        ntMsWithCountingIssues.adjustCounting = -0.29;
+                        break;
+                    case "021":
+                        ntMsWithCountingIssues.adjustCounting = 1.47;
+                        break;
+                    case "017":
+                        ntMsWithCountingIssues.adjustCounting = 1315;
+                        break;
+                    case "023": //blue rag
+                        ntMsWithCountingIssues.adjustCounting = -4.58;
+                        break;
+                    case "018": // Blue Blanks
+                        ntMsWithCountingIssues.adjustCounting = -346;
                         break;
                     default:
                         ntMsWithCountingIssues.adjustCounting = 0;

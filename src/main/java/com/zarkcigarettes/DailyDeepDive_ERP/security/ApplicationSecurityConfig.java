@@ -64,8 +64,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new JwtTokenVerifier(secretKey, jwtConfig), JwtEmailAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/","/login","login","/login/refreshToken","/api3/*","/api3/cl/*","api3/cl/*","/api2/*","/api2","/api/*","/user/*", "index", "/css/*", "/js/*").permitAll().and()
-                .requiresChannel(channel ->
-                        channel.anyRequest().requiresSecure())
+               // .requiresChannel(channel ->
+                 //       channel.anyRequest().requiresSecure())
                 .authorizeRequests()
                 .antMatchers("/api2d/**").hasAuthority("read:authority")
                 .anyRequest()
