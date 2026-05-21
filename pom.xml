@@ -8,10 +8,10 @@
 		<version>2.7.11</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.zarkcigarettes</groupId>
-	<artifactId>DailyDeepDive_ERP</artifactId>
+	<groupId>com.softpala</groupId>
+	<artifactId>SalesDeepDive_ERP</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>DailyDeepDive_ERP</name>
+	<name>SalesDeepDive_ERP</name>
 	<description>Daily Deep Dive Backend</description>
 
 	<dependencies>
@@ -69,6 +69,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
 
@@ -133,6 +134,14 @@
 				<configuration>
 					<source>11</source>
 					<target>11</target>
+					<proc>full</proc>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 
@@ -161,5 +170,6 @@
 		<aerogear.version>1.0.0</aerogear.version>
 		<uap-java.version>1.4.0</uap-java.version>
 		<geoip2.version>2.15.0</geoip2.version>
+		<lombok.version>1.18.38</lombok.version>
 	</properties>
 </project>

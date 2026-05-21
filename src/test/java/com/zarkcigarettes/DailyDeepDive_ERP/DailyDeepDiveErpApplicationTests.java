@@ -1,10 +1,10 @@
-package com.zarkcigarettes.DailyDeepDive_ERP;
+package com.softpala.SalesDeepDive_ERP;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DailyDeepDiveErpApplicationTests {
+class SalesDeepDiveErpApplicationTests {
 
 	@Test
 	void contextLoads() {
