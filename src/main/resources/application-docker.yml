@@ -1,0 +1,63 @@
+server:
+  port: 8087
+  ssl:
+    enabled: false
+
+security:
+  require-ssl: false
+
+spring:
+  application:
+    name: ${ERP_APP_NAME:production-deep-dive-backend}
+  datasource:
+    url: ${ERP_DB_URL:jdbc:mysql://dev-mysql:3306/sales_deep_dive_erp?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${ERP_DB_USERNAME:root}
+    password: ${ERP_DB_PASSWORD:TMoswa@11}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:465}
+    protocol: smtps
+    username: ${MAIL_USERNAME:timmymoswa11@gmail.com}
+    password: ${MAIL_PASSWORD:qwpn tjge tewv eokr}
+    properties:
+      mail:
+        transport:
+          protocol: smtps
+        smtps:
+          auth: true
+          starttls:
+            enable: true
+          timeout: 8000
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+branding:
+  app-name: ${ERP_BRANDING_APP_NAME:Production Deep Dive}
+  company-name: ${ERP_BRANDING_COMPANY_NAME:Softpala Company}
+
+support:
+  email: ${MAIL_FROM_ADDRESS:timmymoswa11@gmail.com}
+
+application:
+  jwt:
+    secretKey: ${ERP_JWT_SECRET:SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3}
+    tokenPrefix: Bearer
+    tokenExpirationAfterDays: 10
+
+frontend:
+  appURL: ${ERP_FRONTEND_URL:http://localhost:4300/}
+
+sync:
+  error:
+    email:
+      to: ${SYNC_ERROR_EMAIL_TO:timothymoswa@gmail.com}
+

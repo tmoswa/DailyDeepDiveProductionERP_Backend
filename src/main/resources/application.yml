@@ -1,0 +1,68 @@
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: /etc/letsencrypt/live/production-backend.ecoshelter.com/springboot.p12
+    key-store-password: ${ERP_SSL_KEYSTORE_PASSWORD:Z4RK@Lus.29}
+    key-store-type: PKCS12
+    key-alias: tomcat
+
+security:
+  require-ssl: true
+
+spring:
+  application:
+    name: production-deep-dive-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/ddd_erp?createDatabaseIfNotExist=true
+    username: zark
+    password: '@M*dalis_202'
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    protocol: smtps
+    username: timmymoswa11@gmail.com
+    password: "qwpn tjge tewv eokr"
+    properties:
+      mail:
+        transport:
+          protocol: smtps
+        smtps:
+          auth: true
+          starttls:
+            enable: true
+          timeout: 8000
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+branding:
+  app-name: Production Deep Dive
+  company-name: Softpala Company
+
+support:
+  email: timmymoswa11@gmail.com
+
+application:
+  jwt:
+    secretKey: SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3SalesDeepDiveV3
+    tokenPrefix: Bearer
+    tokenExpirationAfterDays: 10
+
+frontend:
+  appURL: https://production-frontend.ecoshelter.com/
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+
+debug: true
+
