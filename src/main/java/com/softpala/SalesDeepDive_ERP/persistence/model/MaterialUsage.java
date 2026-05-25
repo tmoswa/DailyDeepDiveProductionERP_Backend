@@ -1,6 +1,8 @@
 package com.softpala.SalesDeepDive_ERP.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -17,6 +19,7 @@ public class MaterialUsage {
 
     @ManyToOne(optional = true)
     @JoinColumn(name="ntms_id", nullable=true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private RawMaterials rawMaterialUsage;
 
     @ManyToOne(optional = true)

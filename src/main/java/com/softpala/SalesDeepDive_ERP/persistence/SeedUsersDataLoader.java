@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class SeedUsersDataLoader implements ApplicationListener<ContextRefreshedEvent> {
 
-    private boolean alreadySetup = true;
+    private boolean alreadySetup = false;
 
     @Autowired
     private UserRepository userRepository;

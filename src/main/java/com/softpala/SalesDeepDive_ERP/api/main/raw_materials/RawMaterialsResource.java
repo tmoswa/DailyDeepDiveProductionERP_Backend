@@ -20,7 +20,7 @@ import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("api/raw-materials")
+@RequestMapping({"api/raw-materials", "api/ntms"})
 @Slf4j
 public class RawMaterialsResource {
 

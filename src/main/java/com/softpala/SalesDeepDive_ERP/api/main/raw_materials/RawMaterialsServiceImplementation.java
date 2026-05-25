@@ -14,9 +14,11 @@ import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -281,7 +283,11 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
             Collection<MaterialUsage> materialUsages = materialUsageRepository.findMaterialUsageByProduct(product);
             Collections.sort(new ArrayList<>(materialUsages), MaterialUsageServiceImplementation.usageComparator);
             for (MaterialUsage materialUsage : materialUsages) {
-                availableNTMs.add(materialUsage.getRawMaterialUsage());
+                if (materialUsage.getRawMaterialUsage() != null) {
+                    availableNTMs.add(materialUsage.getRawMaterialUsage());
+                } else {
+                    log.warn("Skipping material usage {} because raw material reference is missing", materialUsage.getId());
+                }
             }
 
            productionMaterialUsages = productionMaterialUsageRepository.findProductionMaterialUsageByproduct_usage(product)
@@ -304,8 +310,13 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
             ntm.setMain_entity_material(ntMs.getMain_entity_material());
             ntm.setQuantity(0);
             for (ProductionMaterialUsage productionMaterialUsage : productionMaterialUsages) {
-                if (productionMaterialUsage.getRawMaterialUsage().getId() == nt.getId()) {
-                    ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
+                try {
+                    RawMaterials usageMaterial = productionMaterialUsage.getRawMaterialUsage();
+                    if (usageMaterial != null && Objects.equals(usageMaterial.getId(), nt.getId())) {
+                        ntm.setQuantity(ntm.getQuantity() + productionMaterialUsage.getQuantity());
+                    }
+                } catch (EntityNotFoundException | JpaObjectRetrievalFailureException ex) {
+                    log.warn("Skipping production material usage {} due to missing raw material reference", productionMaterialUsage.getId());
                 }
             }
 
@@ -497,7 +508,18 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
     public static Comparator<RawMaterials> ntmsComparator = new Comparator<RawMaterials>() {
         @Override
         public int compare(RawMaterials o1, RawMaterials o2) {
-            return Integer.compare(o1.getSequence(), o2.getSequence());
+            Integer s1 = o1 != null ? o1.getSequence() : null;
+            Integer s2 = o2 != null ? o2.getSequence() : null;
+            if (s1 == null && s2 == null) {
+                return 0;
+            }
+            if (s1 == null) {
+                return 1;
+            }
+            if (s2 == null) {
+                return -1;
+            }
+            return Integer.compare(s1, s2);
         }
     };
 
@@ -507,7 +529,11 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
         Collection<MaterialUsage> materialUsages = materialUsageRepository.findMaterialUsageByProduct(product);
         Collections.sort(new ArrayList<>(materialUsages), MaterialUsageServiceImplementation.usageComparator);
         for (MaterialUsage materialUsage : materialUsages) {
-            allNTMs.add(materialUsage.getRawMaterialUsage());
+            if (materialUsage.getRawMaterialUsage() != null) {
+                allNTMs.add(materialUsage.getRawMaterialUsage());
+            } else {
+                log.warn("Skipping material usage {} in completeNtmsUsed because raw material reference is missing", materialUsage.getId());
+            }
         }
 
         allNTMs.sort(ntmsComparator);
@@ -688,14 +714,16 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
         for (rawMaterialsUsed nt : availableNTMs) {
             completeNtmsUsed ntm= new completeNtmsUsed();
             rawMaterialsUsed ntmOpeningBalance=ntmsOpeningBalance.stream().filter(ntms->ntms.getId()==nt.getId()).findAny().get();
-            List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream().filter(ntms->ntms.getNtMs().getId()==nt.getId()).collect(Collectors.toList());
+            List<PurchaseOrder> deliveredNTMPOs=deliveredPurchaseOrders.stream()
+                    .filter(ntms->ntms.getNtMs() != null && Objects.equals(ntms.getNtMs().getId(), nt.getId()))
+                    .collect(Collectors.toList());
             double deliveredPOs=0;
             for(PurchaseOrder deliveredNTMPO:deliveredNTMPOs){
                 deliveredPOs+=deliveredNTMPO.getDelivered_quantity();
             }
             double availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity();
-            if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm.getId()==nt.getId())){
-                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm.getId()==nt.getId()).findAny().get();
+            if(countingIssues.stream().anyMatch(ntmZ->ntmZ.ntm != null && Objects.equals(ntmZ.ntm.getId(), nt.getId()))){
+                NTMsWithCountingIssues countingIssues0=countingIssues.stream().filter(ntmZ->ntmZ.ntm != null && Objects.equals(ntmZ.ntm.getId(), nt.getId())).findAny().get();
                 ntm.setCountingIssues(countingIssues0);
                  availableQuantity=ntmOpeningBalance.getQuantity()+deliveredPOs-nt.getQuantity()+countingIssues0.getAdjustCounting();
             }
@@ -712,9 +740,6 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
                     ntm.setClosing_balance(ntd.getQuantity());
                 }
             }
-
-
-            ProductServiceImplementation.ProducedProduct producedProduct=producedProducts.stream().filter(pp->pp.getMain_entity_product().equals(nt.getMain_entity_material())).findAny().get();
             double qtry=0;
             for(ProductServiceImplementation.ProducedProduct pp: producedProducts){
                 if(pp.getId().equals(product.getId())){
@@ -724,16 +749,10 @@ public class RawMaterialsServiceImplementation implements iRawMaterialsService {
             }
 
             ntm.setProduced_quantity(qtry);
-            if(materialUsage.stream()
-                    .anyMatch(materialUsage2 -> materialUsage2.getRawMaterialUsage().getId().equals(nt.getId())))
-            {
-                MaterialUsage materialUsage1=materialUsage.stream()
-                        .filter(materialUsage2 -> materialUsage2.getRawMaterialUsage().getId().equals(nt.getId()))
-                        .findAny().get();
-                ntm.setUsage_per_case(materialUsage1.getQuantity());
-            }else {
-                ntm.setUsage_per_case(0);
-            }
+            Optional<MaterialUsage> materialUsage1 = materialUsage.stream()
+                    .filter(materialUsage2 -> materialUsage2.getRawMaterialUsage() != null && Objects.equals(materialUsage2.getRawMaterialUsage().getId(), nt.getId()))
+                    .findAny();
+            ntm.setUsage_per_case(materialUsage1.map(MaterialUsage::getQuantity).orElse(0.0));
 
 
             ntMsFin.add(ntm);

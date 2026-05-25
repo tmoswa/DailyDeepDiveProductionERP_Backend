@@ -96,8 +96,14 @@ public class PurchaseOrderResource {
     @GetMapping(path = "/delayed")
     @PreAuthorize("hasAuthority('PRIVILEGE-SUBSIDIARIES-READ')")
     public ResponseEntity<Response> getDelayedPurchaseOrder() {
-        Collection<PurchaseOrder> purchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).stream().filter(ds_po->ds_po.getDelivery_date().isBefore(LocalDate.now()))
-                .collect(Collectors.toList()).stream().filter(d_po->d_po.getStatus().equals("Initiated")).collect(Collectors.toList());
+        Collection<PurchaseOrder> purchaseOrders=purchaseOrderServiceImplementation.totalPurchaseOrderList(90000).stream()
+                .filter(ds_po -> ds_po.getDelivery_date() != null
+                        && ds_po.getNtMs() != null
+                        && ds_po.getMain_entity_po() != null
+                        && ds_po.getSupplier() != null
+                        && ds_po.getDelivery_date().isBefore(LocalDate.now()))
+                .filter(d_po -> d_po.getStatus().equals("Initiated"))
+                .collect(Collectors.toList());
 
         return  ResponseEntity.ok(
                 Response.builder()

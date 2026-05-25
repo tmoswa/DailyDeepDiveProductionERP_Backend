@@ -33,11 +33,18 @@ public class ApplicationUserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String loginId)
             throws UsernameNotFoundException {
 
-        Optional<User> user = applicationUserDao.selectUserByEmail(email);
-        if (user == null) {
+        Optional<User> user = applicationUserDao.selectUserByEmail(loginId);
+        if (!user.isPresent()) {
+            User usernameMatch = applicationUserDao.getUser(loginId);
+            if (usernameMatch != null) {
+                user = Optional.of(usernameMatch);
+            }
+        }
+
+        if (!user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     " ", " ", true, true, true, true,
                     getAuthorities(Arrays.asList(

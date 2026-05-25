@@ -321,7 +321,9 @@ return ResponseEntity.created(uri).body(userService.saveRole(role));
         if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
             throw new IllegalStateException("refresh token is missin");
         }
-        String token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
+        String token = authorizationHeader
+                .replaceFirst("^" + java.util.regex.Pattern.quote(jwtConfig.getTokenPrefix()) + "\\s*", "")
+                .trim();
         try {
             Jws<Claims> claimsJws =
                     Jwts.parser()
@@ -331,7 +333,7 @@ return ResponseEntity.created(uri).body(userService.saveRole(role));
             Claims body = claimsJws.getBody();
             String username = body.getSubject();
             User user=userService.getUser(username);
-String refresh_token=authorizationHeader.substring(jwtConfig.getTokenPrefix().length());
+String refresh_token=token;
             String access_token = Jwts.builder()
                     .setSubject(user.getEmail())
                     .claim("authorities",user.getRoles() )

@@ -1,6 +1,8 @@
 package com.softpala.SalesDeepDive_ERP.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -15,6 +17,7 @@ public class ProductionMaterialUsage {
 
     @ManyToOne(optional = true)
     @JoinColumn(name="ntms_id", nullable=true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private RawMaterials rawMaterialUsage;
 
     @ManyToOne(optional = true)

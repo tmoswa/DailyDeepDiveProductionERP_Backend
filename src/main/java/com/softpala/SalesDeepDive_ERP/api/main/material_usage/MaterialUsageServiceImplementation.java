@@ -31,7 +31,18 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
     public static Comparator<MaterialUsage> usageComparator = new Comparator<MaterialUsage>() {
         @Override
         public int compare(MaterialUsage o1, MaterialUsage o2) {
-            return Integer.compare(o1.getRawMaterialUsage().getSequence(), o2.getRawMaterialUsage().getSequence());
+            Integer s1 = o1 != null && o1.getRawMaterialUsage() != null ? o1.getRawMaterialUsage().getSequence() : null;
+            Integer s2 = o2 != null && o2.getRawMaterialUsage() != null ? o2.getRawMaterialUsage().getSequence() : null;
+            if (s1 == null && s2 == null) {
+                return 0;
+            }
+            if (s1 == null) {
+                return 1;
+            }
+            if (s2 == null) {
+                return -1;
+            }
+            return Integer.compare(s1, s2);
         }
     };
 
@@ -40,8 +51,15 @@ public class MaterialUsageServiceImplementation implements iMaterialUsageService
         Product product = productRepository.findById(productID)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("product with id %d not found", productID)));
         Collection<MaterialUsage> materialUsages = materialUsageRepository.findMaterialUsageByProduct(product);
-        List<MaterialUsage> materialUsageList=new ArrayList<>(materialUsages);
-         Collections.sort(materialUsageList, usageComparator);
+        List<MaterialUsage> materialUsageList = new ArrayList<>();
+        for (MaterialUsage materialUsage : materialUsages) {
+            if (materialUsage.getRawMaterialUsage() != null) {
+                materialUsageList.add(materialUsage);
+            } else {
+                log.warn("Skipping material usage {} because raw material reference is missing", materialUsage.getId());
+            }
+        }
+        Collections.sort(materialUsageList, usageComparator);
         return materialUsageList;
     }
 

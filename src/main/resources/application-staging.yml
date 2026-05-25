@@ -1,3 +1,9 @@
+# ============================================================
+# Spring Boot STAGING profile
+# DB:  server-local MySQL 8.4 (reached via host.docker.internal)
+# SSL: disabled on app level – Apache handles HTTPS termination
+# ============================================================
+
 server:
   port: 8087
   ssl:
@@ -10,13 +16,20 @@ spring:
   application:
     name: ${ERP_APP_NAME:production-deep-dive-backend}
   datasource:
-    url: ${ERP_DB_URL:jdbc:mysql://dev-mysql:3306/sales_deep_dive_erp?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${ERP_DB_USERNAME:root}
-    password: ${ERP_DB_PASSWORD:TMoswa@11}
+    url: ${ERP_DB_URL:jdbc:mysql://host.docker.internal:3306/sales_deep_dive_erp?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${ERP_DB_USERNAME:punch_bowl}
+    password: ${ERP_DB_PASSWORD:punch_bowl:rJ6qNxkSVJ2wU5rkooxixKuzTELceiRqurYm8AGuOQk=!!!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
@@ -54,10 +67,16 @@ application:
     tokenExpirationAfterDays: 10
 
 frontend:
-  appURL: ${ERP_FRONTEND_URL:http://localhost:4300/}
+  appURL: ${ERP_FRONTEND_URL:https://production.ecoshelter.co.zw/}
 
 sync:
   error:
     email:
       to: ${SYNC_ERROR_EMAIL_TO:timothymoswa@gmail.com}
+
+logging:
+  level:
+    root: INFO
+    com.softpala: INFO
+    org.hibernate.SQL: WARN
 
