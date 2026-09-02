@@ -1,5 +1,6 @@
 package com.softpala.SalesDeepDive_ERP.security;
 
+import org.springframework.http.HttpMethod;
 import com.softpala.SalesDeepDive_ERP.auth.ApplicationUserService;
 import com.softpala.SalesDeepDive_ERP.jwt.JwtConfig;
 import com.softpala.SalesDeepDive_ERP.jwt.JwtTokenVerifier;
@@ -72,6 +73,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         http.authorizeRequests()
+                // Laravel's erp:sync-transfers pulls this outbox every ten
+                // minutes. The "/..." list below uses "/api/*", which matches a
+                // single path segment only, so it never covered this two-segment
+                // path and every pull came back 403. GET only - the ack endpoint
+                // beneath it mutates state and nothing calls it.
+                .antMatchers(HttpMethod.GET, "/api/transfers/outbox").permitAll()
                 .antMatchers("/","/login","login","/login/refreshToken","/api3/*","/api3/cl/*","api3/cl/*","/api2/*","/api2","/api/*","/user/*", "index", "/css/*", "/js/*").permitAll()
                 .antMatchers("/api2d/**").hasAuthority("read:authority")
                 .anyRequest()
